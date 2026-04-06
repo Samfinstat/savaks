@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ru"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Савакс — Отчёт</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&family=Onest:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0a0c10;--bg2:#0f1218;--bg3:#161b24;--br:#1e2535;--ac:#4fd1c5;--tx:#e8ecf1;--t2:#8892a4;--t3:#4a5568;--cd:#111520;--gn:#68d391;--rd:#fc8181;--yw:#f6ad55;--pu:#b794f4;--bl:#63b3ed}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Onest',sans-serif;background:var(--bg);color:var(--tx)}
+#gate{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999}
+.gb{text-align:center;padding:48px 40px;background:var(--cd);border:1px solid var(--br);border-radius:20px;max-width:400px;width:90%;box-shadow:0 40px 80px rgba(0,0,0,.6)}
+.gl{font-family:'Unbounded',sans-serif;font-size:24px;font-weight:700;color:var(--ac);margin-bottom:5px}
+.gs{color:var(--t2);font-size:11px;margin-bottom:28px;text-transform:uppercase;letter-spacing:.5px}
+.gi{width:100%;padding:12px 16px;background:var(--bg3);border:1px solid var(--br);border-radius:10px;color:var(--tx);font-family:'Onest',sans-serif;font-size:16px;outline:none;text-align:center;letter-spacing:4px;transition:border-color .2s}
+.gi:focus{border-color:var(--ac)}
+.gb_b{width:100%;margin-top:12px;padding:12px;background:var(--ac);color:var(--bg);border:none;border-radius:10px;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;cursor:pointer}
+.ge{color:var(--rd);font-size:12px;margin-top:8px;opacity:0;transition:opacity .3s}.ge.show{opacity:1}
+#rep{display:none}#rep.v{display:block}
+.tb{position:sticky;top:0;z-index:100;background:rgba(10,12,16,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--br);padding:13px 36px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.tl{font-family:'Unbounded',sans-serif;font-size:16px;font-weight:700;color:var(--ac)}
+.tchs{display:flex;gap:6px;flex-wrap:wrap}
+.cht{font-size:10px;padding:4px 10px;border-radius:14px;font-weight:600;border:1px solid}
+.cya{border-color:rgba(79,209,197,.3);color:var(--ac);background:rgba(79,209,197,.08)}
+.cgo{border-color:rgba(99,179,237,.3);color:var(--bl);background:rgba(99,179,237,.08)}
+.cct{border-color:rgba(246,173,85,.3);color:var(--yw);background:rgba(246,173,85,.08)}
+.tp{font-size:11px;color:var(--t2);background:var(--bg3);border:1px solid var(--br);padding:4px 12px;border-radius:14px}
+.con{max-width:1280px;margin:0 auto;padding:0 36px 80px}
+.hero{padding:48px 0 36px;border-bottom:1px solid var(--br);margin-bottom:36px}
+.hl{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--ac);margin-bottom:12px;font-weight:600}
+.ht{font-family:'Unbounded',sans-serif;font-size:clamp(26px,3.5vw,44px);font-weight:700;line-height:1.1;letter-spacing:-1.5px;margin-bottom:14px}
+.ht span{color:var(--ac)}.hd{font-size:14px;color:var(--t2);line-height:1.7;max-width:640px}
+.kg{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:36px}
+.kc{background:var(--cd);border:1px solid var(--br);border-radius:12px;padding:18px;position:relative;overflow:hidden}
+.kc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--ac);opacity:.5}
+.kc.g::before{background:var(--gn)}.kc.r::before{background:var(--rd)}.kc.y::before{background:var(--yw)}.kc.b::before{background:var(--bl)}
+.kl{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--t2);margin-bottom:7px;font-weight:600}
+.kv{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:700;letter-spacing:-1px;line-height:1;margin-bottom:4px}
+.kn{font-size:11px;color:var(--t3)}
+.sec{margin-bottom:44px}
+.sh{display:flex;align-items:baseline;gap:12px;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--br)}
+.sn{font-family:'Unbounded',sans-serif;font-size:10px;color:var(--ac);font-weight:700;letter-spacing:2px}
+.st{font-family:'Unbounded',sans-serif;font-size:17px;font-weight:600;letter-spacing:-.4px}
+.cc{background:var(--cd);border:1px solid var(--br);border-radius:12px;padding:22px;margin-bottom:14px}
+.ct{font-size:12px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.cs{font-size:11px;color:var(--t3);margin-bottom:18px}
+.cw{position:relative;height:230px}
+.tc{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:768px){.tc{grid-template-columns:1fr}}
+.tw{overflow-x:auto;background:var(--cd);border:1px solid var(--br);border-radius:12px}
+table{width:100%;border-collapse:collapse}
+th{padding:11px 16px;text-align:left;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--t2);font-weight:600;border-bottom:1px solid var(--br);white-space:nowrap;background:rgba(255,255,255,.02)}
+td{padding:10px 16px;font-size:13px;border-bottom:1px solid rgba(30,37,53,.5);white-space:nowrap}
+tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.02)}
+.tn{font-variant-numeric:tabular-nums;font-weight:500}
+.pg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.pc{background:var(--bg3);border:1px solid var(--br);border-radius:10px;padding:14px;text-align:center}
+.pcl{font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;font-weight:600}
+.pcv{font-family:'Unbounded',sans-serif;font-size:24px;font-weight:700}
+.cnc{background:linear-gradient(135deg,rgba(79,209,197,.06),rgba(104,211,145,.04));border:1px solid rgba(79,209,197,.2);border-radius:16px;padding:32px;margin-bottom:14px}
+.cnt{font-family:'Unbounded',sans-serif;font-size:15px;font-weight:600;margin-bottom:12px;color:var(--ac)}
+.cnc p{font-size:14px;color:var(--t2);line-height:1.8;margin-bottom:10px}
+#sps{display:none}#sps.v{display:block}
+.spcd{background:rgba(183,148,244,.04);border:1px solid rgba(183,148,244,.25);border-radius:16px;padding:32px;position:relative;margin-top:14px}
+.spb{position:absolute;top:-11px;left:20px;background:var(--pu);color:var(--bg);font-family:'Unbounded',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;padding:3px 12px;border-radius:14px}
+.spt{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:600;color:var(--pu);margin-bottom:16px}
+.sph{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--pu);margin:16px 0 8px;padding-top:12px;border-top:1px solid rgba(183,148,244,.15)}
+.sph:first-of-type{margin-top:0;border-top:none}
+.spl{list-style:none}.spl li{font-size:12px;color:var(--t2);padding:6px 0;border-bottom:1px solid rgba(183,148,244,.1);line-height:1.5;display:flex;gap:8px}.spl li:last-child{border-bottom:none}.spl li::before{content:'⚡';flex-shrink:0}
+.ao{display:none}
+.sptr{background:none;border:1px solid rgba(183,148,244,.25);border-radius:7px;color:rgba(183,148,244,.4);font-size:11px;padding:4px 12px;cursor:pointer;font-family:'Onest',sans-serif;transition:all .2s}
+.sptr:hover{border-color:var(--pu);color:var(--pu)}
+.ft{margin-top:60px;padding:20px 0;border-top:1px solid var(--br);display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--t3);flex-wrap:wrap;gap:10px}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--br);border-radius:3px}
+</style></head><body>
+<div id="gate"><div class="gb">
+  <div class="gl">Савакс</div>
+  <div class="gs">Аналитический отчёт · 1 декабря 2025 - 6 апреля 2026</div>
+  <input class="gi" type="password" id="pi" placeholder="••••••••" autocomplete="off">
+  <button class="gb_b" onclick="cp()">ВОЙТИ</button>
+  <div class="ge" id="pe">Неверный пароль</div>
+</div></div>
+<div id="rep">
+  <div class="tb">
+    <div class="tl">Савакс</div>
+    <div class="tchs">
+      <span class="cht cct">📊 Яндекс.Директ</span>
+      <span class="cht cya">🟡 SEO Яндекс</span>
+      <span class="cht cgo">🔵 SEO Google</span>
+    </div>
+    <div class="tp">1 декабря 2025 - 6 апреля 2026</div>
+  </div>
+  <div class="con">
+    <div class="hero">
+      <div class="hl">Маркетинговая аналитика · Яндекс.Директ + SEO Яндекс + SEO Google</div>
+      <h1 class="ht">Савакс<br><span>Отчёт по продвижению</span></h1>
+      <p class="hd">SAVAKS — производитель автомобильных EVA-ковриков и автоаксессуаров: ворсовые коврики, органайзеры в багажник, велюровые накидки и солнцезащитные шторки. Изготавливаем продукцию по индивидуальным лекалам для более чем 2000 моделей автомобилей. Доставка по Санкт-Петербургу и всей России.. Санкт Петербург. Период: 1 декабря 2025 - 6 апреля 2026.</p>
+    </div>
+    <div class="kg" id="kg"></div>
+    
+    <div class="sec"><div class="sh"><span class="sn">01</span><h2 class="st">Контекстная реклама — Кампании</h2></div>
+    <div class="tc">
+      <div class="cc"><div class="ct">CR% и CPA по кампаниям</div><div class="cs">Эффективность</div><div class="cw"><canvas id="ch1"></canvas></div></div>
+      <div class="cc"><div class="ct">Расход ₽</div><div class="cs">По кампаниям</div><div class="cw"><canvas id="ch2"></canvas></div></div>
+    </div>
+    <div class="tw"><table><thead><tr><th>Кампания</th><th>Клики</th><th>Расход ₽</th><th>CPC ₽</th><th>CR%</th><th>Конв.</th><th>CPA ₽</th><th>Статус</th></tr></thead>
+    <tbody><tr><td><b>Общие данные по всем кампаниям</b></td><td class="tn">501</td><td class="tn">4 882</td><td class="tn">10</td><td class="tn"><b style="color:var(--red)">1.00%</b></td><td class="tn">5</td><td class="tn">976</td><td><span style="font-size:11px;font-weight:600;color:var(--yellow)">👁 Набл.</span></td></tr></tbody></table></div></div>
+    
+    <div class="sec"><div class="sh"><span class="sn">02</span><h2 class="st">SEO — Яндекс · Санкт Петербург</h2></div>
+    <div class="tc">
+      <div class="cc"><div class="ct">Распределение позиций</div><div class="cs">Яндекс · ? ключей</div><div class="cw" style="height:200px"><canvas id="yac"></canvas></div></div>
+      <div class="cc"><div class="ct">Позиции и трафик</div><div class="cs">Яндекс · текущий срез</div>
+        <div class="pg">
+          <div class="pc"><div class="pcl" style="color:var(--gn)">ТОП-3</div><div class="pcv" style="color:var(--gn)">0</div></div>
+          <div class="pc"><div class="pcl" style="color:var(--ac)">ТОП-10</div><div class="pcv" style="color:var(--ac)">0</div></div>
+          <div class="pc"><div class="pcl" style="color:var(--yw)">ТОП-30</div><div class="pcv" style="color:var(--yw)">0</div></div>
+          <div class="pc"><div class="pcl" style="color:var(--rd)">Вне ТОП-100</div><div class="pcv" style="color:var(--rd)">0</div></div>
+        </div>
+        
+      </div>
+    </div>
+    </div>
+    
+    <div class="sec"><div class="sh"><span class="sn" style="color:var(--bl)">03</span><h2 class="st">SEO — Google</h2></div>
+    <div class="tc">
+      <div class="cc"><div class="ct">Распределение позиций</div><div class="cs">Google · ? ключей</div><div class="cw" style="height:200px"><canvas id="goc"></canvas></div></div>
+      <div class="cc"><div class="ct">Позиции и трафик</div><div class="cs">Google · текущий срез</div>
+        <div class="pg">
+          <div class="pc" style="border-color:rgba(99,179,237,.2)"><div class="pcl" style="color:var(--gn)">ТОП-3</div><div class="pcv" style="color:var(--gn)">0</div></div>
+          <div class="pc" style="border-color:rgba(99,179,237,.2)"><div class="pcl" style="color:var(--bl)">ТОП-10</div><div class="pcv" style="color:var(--bl)">0</div></div>
+          <div class="pc" style="border-color:rgba(99,179,237,.2)"><div class="pcl" style="color:var(--yw)">ТОП-30</div><div class="pcv" style="color:var(--yw)">0</div></div>
+          <div class="pc" style="border-color:rgba(99,179,237,.2)"><div class="pcl" style="color:var(--rd)">Вне ТОП-100</div><div class="pcv" style="color:var(--rd)">0</div></div>
+        </div>
+        
+      </div>
+    </div>
+    </div>
+    <div class="sec"><div class="sh"><span class="sn">04</span><h2 class="st">Выводы</h2></div>
+    <div class="cnc"><div class="cnt">📊 Итоговая динамика</div>
+      <p>Данные за период обработаны. Вставьте сюда вывод из раздела F ответа Claude после анализа файлов.</p>
+      <p>Для нового анализа — загрузите файлы отчётов в Claude Projects.</p>
+    </div>
+    <div class="ao" style="text-align:center;margin:8px 0"><button class="sptr" onclick="ts()">🔒 / 🔓 Внутренний разбор</button></div>
+    <div id="sps"><div class="spcd">
+      <div class="spb">ТОЛЬКО ДЛЯ СПЕЦИАЛИСТА</div>
+      <div class="spt">⚡ Внутренний разбор</div>
+      <div class="sph">🔴 / 🟡 / 🟢 Ключевые сигналы</div>
+      <ul class="spl"><li>После анализа файлов — вставьте сюда блок G из ответа Claude</li></ul>
+      <div class="sph">📋 Действия на 2 недели</div>
+      <ul class="spl"><li>Блок H появится после первого анализа</li></ul>
+      <div class="sph">⚙️ Пороги контроля</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:8px">
+        <div style="background:rgba(252,129,129,.08);border:1px solid rgba(252,129,129,.2);border-radius:8px;padding:12px;font-size:12px;color:var(--t2)"><b style="color:var(--rd);display:block;margin-bottom:6px">🔴 Критично</b>CPC &gt; 90 ₽<br>CPA &gt; 6000 ₽<br>Конв. ↓ 30%</div>
+        <div style="background:rgba(246,173,85,.08);border:1px solid rgba(246,173,85,.2);border-radius:8px;padding:12px;font-size:12px;color:var(--t2)"><b style="color:var(--yw);display:block;margin-bottom:6px">🟡 Внимание</b>CPC &gt; 60 ₽<br>CPA &gt; 3500 ₽<br>CTR &lt; 4%</div>
+        <div style="background:rgba(79,209,197,.08);border:1px solid rgba(79,209,197,.2);border-radius:8px;padding:12px;font-size:12px;color:var(--t2)"><b style="color:var(--ac);display:block;margin-bottom:6px">📌 Правила</b>≥30 кликов<br>1 эксперимент<br>Объявления → цифры</div>
+      </div>
+    </div></div></div>
+    <div class="ft">
+      <span>Савакс · 1 декабря 2025 - 6 апреля 2026 · Яндекс.Директ, SEO Яндекс, SEO Google</span>
+      <button class="sptr ao" onclick="ts()">🔒 / 🔓 Внутренний разбор</button>
+      <span>Обновляется ежемесячно</span>
+    </div>
+  </div>
+</div>
+<script>
+const PC='savaks2026',PA='analitikssavaks';
+let IA=false;
+function cp(){
+  const v=document.getElementById('pi').value.trim(),e=document.getElementById('pe');
+  if(v===PC||v===PA){IA=(v===PA);const g=document.getElementById('gate');g.style.transition='opacity .4s';g.style.opacity='0';setTimeout(()=>{g.style.display='none';document.getElementById('rep').classList.add('v');am();ic();},400);}
+  else{e.classList.add('show');document.getElementById('pi').value='';setTimeout(()=>e.classList.remove('show'),2500);}
+}
+document.getElementById('pi').addEventListener('keydown',e=>{if(e.key==='Enter')cp();});
+function am(){document.querySelectorAll('.ao').forEach(el=>el.style.display=IA?'':'none');if(IA)document.getElementById('sps').classList.add('v');bk();}
+function ts(){if(!IA)return;document.getElementById('sps').classList.toggle('v');}
+const D={"camps":[{"n":"Общие данные по всем кампаниям","cl":501,"cv":5,"sp":4882,"st":"watch"}],"ya":{"t3":0,"t10":0,"t30":0,"out":0,"total":0},"go":{"t3":0,"t10":0,"t30":0,"out":0,"total":0}};
+function bk(){
+  const ts=D.camps.reduce((s,c)=>s+c.sp,0),tc=D.camps.reduce((s,c)=>s+c.cv,0),tk=D.camps.reduce((s,c)=>s+c.cl,0);
+  let h='';
+  if(ts>0)h+=`<div class="kc y"><div class="kl">Бюджет (контекст)</div><div class="kv">${ts.toLocaleString('ru-RU')} ₽</div><div class="kn">${D.camps.length} кампаний</div></div>`;
+  if(tc>0)h+=`<div class="kc g"><div class="kl">Конверсии</div><div class="kv">${tc}</div><div class="kn">CPA ${Math.round(ts/tc).toLocaleString('ru-RU')} ₽</div></div>`;
+  if(D.ya.t10>0)h+=`<div class="kc"><div class="kl">ТОП-10 Яндекс</div><div class="kv" style="color:var(--ac)">${D.ya.t10}</div><div class="kn">из ${D.ya.total||'?'} ключей</div></div>`;
+  if(D.go.t10>0)h+=`<div class="kc b"><div class="kl">ТОП-10 Google</div><div class="kv" style="color:var(--bl)">${D.go.t10}</div><div class="kn">из ${D.go.total||'?'} ключей</div></div>`;
+  document.getElementById('kg').innerHTML=h||'<div class="kc"><div class="kl">Статус</div><div class="kv" style="color:var(--ac)">Запуск</div><div class="kn">Данные после первого анализа</div></div>';
+}
+function ic(){
+  const gc='#1e2535',fc='#8892a4',tip={backgroundColor:'#161b24',borderColor:'#1e2535',borderWidth:1,titleColor:'#e8ecf1',bodyColor:'#8892a4',padding:12};
+  const dn=(id,labels,data,colors)=>{if(!document.getElementById(id))return;new Chart(document.getElementById(id),{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:0,spacing:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:fc,font:{size:11},boxWidth:10,boxHeight:10}},tooltip:tip}}});};
+  if(D.ya.total>0)dn('yac',['ТОП-3','ТОП-4-10','ТОП-11-30','Вне ТОП-100'],[D.ya.t3,D.ya.t10-D.ya.t3,D.ya.t30-D.ya.t10,D.ya.out],['#68d391','#4fd1c5','#f6ad55','#4a5568']);
+  if(D.go.total>0)dn('goc',['ТОП-3','ТОП-4-10','ТОП-11-30','Вне ТОП-100'],[D.go.t3,D.go.t10-D.go.t3,D.go.t30-D.go.t10,D.go.out],['#68d391','#63b3ed','#f6ad55','#4a5568']);
+  const ns=D.camps.map(c=>c.n),cr=D.camps.map(c=>c.cl>0?+((c.cv/c.cl)*100).toFixed(2):0),cp=D.camps.map(c=>c.cv>0?Math.round(c.sp/c.cv):0),sp=D.camps.map(c=>c.sp),cl={scale:'rgba(104,211,145,.7)',watch:'rgba(246,173,85,.7)',cut:'rgba(252,129,129,.7)',off:'rgba(74,85,104,.5)'},cols=D.camps.map(c=>cl[c.st]);
+  if(document.getElementById('ch1')&&D.camps.length)new Chart(document.getElementById('ch1'),{type:'bar',data:{labels:ns,datasets:[{type:'bar',label:'CR%',data:cr,backgroundColor:cols,borderRadius:4,yAxisID:'y'},{type:'line',label:'CPA ₽',data:cp,borderColor:'#f6ad55',pointBackgroundColor:'#f6ad55',pointRadius:4,tension:.3,yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{color:fc,font:{size:11},boxWidth:10,boxHeight:10}},tooltip:tip},scales:{x:{grid:{color:gc},ticks:{color:fc,font:{size:11}}},y:{grid:{color:gc},ticks:{color:'#68d391',font:{size:11}},position:'left'},y1:{grid:{display:false},ticks:{color:'#f6ad55',font:{size:11}},position:'right'}}}});
+  if(document.getElementById('ch2')&&D.camps.length)new Chart(document.getElementById('ch2'),{type:'bar',data:{labels:ns,datasets:[{data:sp,backgroundColor:cols,borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...tip,callbacks:{label:c=>` ${c.raw.toLocaleString('ru-RU')} ₽`}}},scales:{x:{grid:{color:gc},ticks:{color:fc,font:{size:11}}},y:{grid:{color:gc},ticks:{color:fc,font:{size:11}}}}}});
+}
+</script></body></html>
