@@ -5,714 +5,787 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SAVAKS — Аналитический отчёт</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;700&family=Onest:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&family=Onest:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-:root{--bg:#0a0c10;--bg2:#0f1218;--bg3:#161b24;--border:#1e2535;--border2:#242d3e;--accent:#4fd1c5;--text:#e8ecf1;--text2:#8892a4;--text3:#4a5568;--card:#111520;--green:#68d391;--red:#fc8181;--yellow:#f6ad55;--purple:#b794f4;}
+:root{
+  --bg:#ffffff; --bg2:#f7f9fb; --bg3:#eef2f6;
+  --border:#e2e8f0; --border2:#cbd5e1;
+  --ink:#0f172a; --ink2:#475569; --ink3:#94a3b8;
+  --brand:#0d9488; --brand2:#0f766e;
+  --green:#059669; --greenbg:#ecfdf5;
+  --red:#dc2626; --redbg:#fef2f2;
+  --amber:#d97706; --amberbg:#fffbeb;
+  --violet:#7c3aed; --violetbg:#f5f3ff;
+  --blue:#2563eb; --bluebg:#eff6ff;
+  --sh:0 1px 2px rgba(15,23,42,.04),0 1px 3px rgba(15,23,42,.06);
+  --sh2:0 4px 12px rgba(15,23,42,.06);
+}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Onest',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-#gate{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000}
-.gate-box{text-align:center;padding:52px 44px;background:var(--card);border:1px solid var(--border);border-radius:20px;max-width:400px;width:90%}
-.gate-logo{font-family:'Unbounded',sans-serif;font-size:26px;font-weight:700;color:var(--accent);margin-bottom:6px}
-.gate-sub{color:var(--text2);font-size:12px;margin-bottom:32px;letter-spacing:.5px;text-transform:uppercase}
-.gate-input{width:100%;padding:13px 18px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Onest',sans-serif;font-size:16px;outline:none;transition:border-color .2s;text-align:center;letter-spacing:4px}
-.gate-input:focus{border-color:var(--accent)}
-.gate-btn{width:100%;margin-top:14px;padding:13px;background:var(--accent);color:var(--bg);border:none;border-radius:10px;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer}
-.gate-error{color:var(--red);font-size:12px;margin-top:10px;opacity:0;transition:opacity .3s}
-.gate-error.show{opacity:1}
+html{scroll-behavior:smooth}
+body{font-family:'Onest',-apple-system,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* GATE */
+#gate{position:fixed;inset:0;background:linear-gradient(160deg,#f7f9fb 0%,#eef2f6 100%);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.gate-box{background:#fff;border:1px solid var(--border);border-radius:18px;padding:44px 38px;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 50px rgba(15,23,42,.09)}
+.gate-logo{font-family:'Unbounded',sans-serif;font-size:24px;font-weight:700;color:var(--brand);letter-spacing:-.5px}
+.gate-sub{color:var(--ink3);font-size:11px;margin:6px 0 28px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600}
+.gate-input{width:100%;padding:12px 16px;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;font-family:'Onest',sans-serif;font-size:15px;outline:none;text-align:center;letter-spacing:3px;color:var(--ink);transition:.15s}
+.gate-input:focus{border-color:var(--brand);background:#fff;box-shadow:0 0 0 3px rgba(13,148,136,.1)}
+.gate-btn{width:100%;margin-top:12px;padding:12px;background:var(--brand);color:#fff;border:none;border-radius:10px;font-family:'Onest',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:.15s}
+.gate-btn:hover{background:var(--brand2)}
+.gate-err{color:var(--red);font-size:12px;margin-top:10px;opacity:0;transition:.3s}
+.gate-err.show{opacity:1}
+
 #report{display:none}
-.topbar{position:sticky;top:0;z-index:100;background:rgba(10,12,16,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 40px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
-.topbar-logo{font-family:'Unbounded',sans-serif;font-size:17px;font-weight:700;color:var(--accent)}
-.topbar-links{display:flex;gap:6px;flex-wrap:wrap}
-.topbar-link{font-size:11px;color:var(--text2);background:var(--bg3);border:1px solid var(--border);padding:5px 13px;border-radius:20px;cursor:pointer;transition:border-color .2s;white-space:nowrap}
-.topbar-link:hover,.topbar-link.active{border-color:var(--accent);color:var(--accent)}
-.topbar-right{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:10px}
-#spec-badge-topbar{display:none;background:rgba(183,148,244,.15);border:1px solid rgba(183,148,244,.3);color:var(--purple);font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 12px;border-radius:20px}
-.container{max-width:1320px;margin:0 auto;padding:0 40px 80px}
-@media(max-width:768px){.container{padding:0 18px 60px}.topbar{padding:12px 18px}}
-.hero{padding:48px 0 36px;border-bottom:1px solid var(--border);margin-bottom:40px}
-.hero-label{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;font-weight:600}
-.hero-title{font-family:'Unbounded',sans-serif;font-size:clamp(22px,3vw,38px);font-weight:700;line-height:1.1;letter-spacing:-1px;margin-bottom:14px}
-.hero-title span{color:var(--accent)}
-.hero-desc{font-size:13px;color:var(--text2);line-height:1.7;max-width:700px}
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:11px;margin-bottom:36px}
-.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative;overflow:hidden}
-.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);opacity:.5}
-.kpi-card.green::before{background:var(--green)}.kpi-card.yellow::before{background:var(--yellow)}.kpi-card.red::before{background:var(--red)}.kpi-card.purple::before{background:var(--purple)}
-.kpi-label{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:7px;font-weight:600}
-.kpi-value{font-family:'Unbounded',sans-serif;font-size:21px;font-weight:700;line-height:1;margin-bottom:5px}
-.kpi-note{font-size:11px;color:var(--text2)}.kpi-note.good{color:var(--green)}.kpi-note.bad{color:var(--red)}.kpi-note.warn{color:var(--yellow)}
-.kpi-delta{font-size:10px;margin-top:3px;color:var(--text3)}
-.section{margin-bottom:48px}
-.section-header{display:flex;align-items:baseline;gap:14px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border)}
-.section-title{font-family:'Unbounded',sans-serif;font-size:17px;font-weight:600;letter-spacing:-.5px}
-.section-num{font-family:'Unbounded',sans-serif;font-size:10px;color:var(--accent);font-weight:700;letter-spacing:2px}
-.chart-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:14px}
-.chart-title{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
-.chart-subtitle{font-size:11px;color:var(--text3);margin-bottom:16px}
-.chart-wrap{position:relative;height:230px}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-@media(max-width:900px){.two-col,.three-col{grid-template-columns:1fr}}
-.table-wrap{overflow-x:auto;background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:14px}
-table{width:100%;border-collapse:collapse}
-th{padding:10px 15px;text-align:left;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap;background:rgba(255,255,255,.02)}
-td{padding:9px 15px;font-size:12px;border-bottom:1px solid rgba(30,37,53,.5)}
-tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.02)}
-.tag{display:inline-block;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:600}
-.tg{background:rgba(104,211,145,.15);color:var(--green)}.ty{background:rgba(246,173,85,.15);color:var(--yellow)}.tr{background:rgba(252,129,129,.15);color:var(--red)}.tb{background:rgba(79,209,197,.15);color:var(--accent)}.tgr{background:rgba(74,85,104,.3);color:var(--text3)}.tp2{background:rgba(183,148,244,.15);color:var(--purple)}
-.alert-box{border-radius:10px;padding:11px 15px;margin-bottom:11px;display:flex;gap:9px;font-size:12px;line-height:1.6}
-.alert-ico{font-size:14px;flex-shrink:0}
-.a-red{background:rgba(252,129,129,.08);border:1px solid rgba(252,129,129,.25)}
-.a-yellow{background:rgba(246,173,85,.08);border:1px solid rgba(246,173,85,.2)}
-.a-green{background:rgba(104,211,145,.08);border:1px solid rgba(104,211,145,.2)}
-.a-blue{background:rgba(79,209,197,.06);border:1px solid rgba(79,209,197,.2)}
-.season-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;margin:14px 0}
-.season-cell{border-radius:6px;padding:9px 3px;text-align:center;cursor:default}
-.s-month{font-size:8px;color:var(--text3);margin-bottom:3px;display:block}
-.s-level{font-size:9px;font-weight:700}
-.s-low{background:rgba(74,85,104,.3);color:var(--text3)}.s-med{background:rgba(246,173,85,.2);color:var(--yellow)}.s-high{background:rgba(104,211,145,.25);color:var(--green)}.s-peak{background:rgba(104,211,145,.4);color:var(--green)}.s-current{outline:2px solid var(--accent);outline-offset:2px}
-.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
-.bar-label{font-size:10px;color:var(--text2);width:180px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bar-track{flex:1;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden}
-.bar-fill{height:100%;border-radius:4px}
-.bar-val{font-size:10px;font-weight:600;width:90px;flex-shrink:0;text-align:right}
-.seo-dist{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
-.sd{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center}
-.sd-label{font-size:10px;color:var(--text3);margin-bottom:4px;letter-spacing:.5px;text-transform:uppercase}
-.sd-val{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:700}
-.sd-sub{font-size:10px;color:var(--text3);margin-top:2px}
-.sd-delta{font-size:10px;margin-top:3px}
-.conclusion-client{background:linear-gradient(135deg,rgba(79,209,197,.06),rgba(104,211,145,.04));border:1px solid rgba(79,209,197,.2);border-radius:18px;padding:30px;margin-bottom:14px}
-.conclusion-title{font-family:'Unbounded',sans-serif;font-size:15px;font-weight:600;margin-bottom:12px;color:var(--accent)}
-.conclusion-client p{font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:10px}
-.conclusion-client p:last-child{margin-bottom:0}
-.spec-card{background:rgba(183,148,244,.04);border:1px solid rgba(183,148,244,.25);border-radius:18px;padding:34px;position:relative;margin-top:16px}
-.spec-badge{position:absolute;top:-12px;left:24px;background:var(--purple);color:var(--bg);font-family:'Unbounded',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 14px;border-radius:20px}
-.spec-title{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:600;color:var(--purple);margin-bottom:18px}
-.spec-section-head{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--purple);margin:18px 0 9px;padding-top:14px;border-top:1px solid rgba(183,148,244,.15)}
-.spec-section-head:first-of-type{margin-top:0;border-top:none}
-.spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
-@media(max-width:700px){.spec-grid{grid-template-columns:1fr}}
-.spec-item{background:rgba(183,148,244,.06);border:1px solid rgba(183,148,244,.15);border-radius:10px;padding:13px}
-.spec-item-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--purple);margin-bottom:4px;font-weight:700}
-.spec-item-val{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:700;margin-bottom:4px}
-.spec-item-note{font-size:11px;color:var(--text3);line-height:1.5}
-.spec-list{list-style:none}
-.spec-list li{font-size:12px;color:var(--text2);padding:5px 0;border-bottom:1px solid rgba(183,148,244,.1);line-height:1.5;display:flex;gap:8px}
-.spec-list li:last-child{border-bottom:none}
-.spec-list li::before{content:'⚡';flex-shrink:0}
-.spec-alert{background:rgba(252,129,129,.08);border:1px solid rgba(252,129,129,.25);border-radius:10px;padding:12px 14px;margin-top:11px;font-size:12px;color:var(--red);line-height:1.6}
-.spec-good{background:rgba(104,211,145,.08);border:1px solid rgba(104,211,145,.2);border-radius:10px;padding:12px 14px;margin-top:10px;font-size:12px;color:var(--green);line-height:1.6}
-.spec-warn{background:rgba(246,173,85,.08);border:1px solid rgba(246,173,85,.2);border-radius:10px;padding:12px 14px;margin-top:10px;font-size:12px;color:var(--yellow);line-height:1.6}
-.footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:11px;color:var(--text3);flex-wrap:wrap;gap:6px}
-.hlg{color:var(--green);font-weight:600}.hlr{color:var(--red);font-weight:600}.hly{color:var(--yellow);font-weight:600}.hlb{color:var(--accent);font-weight:600}
-/* MONTH NAV */
-.month-nav{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
-.month-btn{padding:5px 14px;cursor:pointer;border-radius:20px;border:1px solid var(--border);font-size:11px;color:var(--text2);background:var(--bg3);transition:all .2s}
-.month-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(79,209,197,.08)}
-.month-panel{display:none}.month-panel.active{display:block}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:12px 32px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.tb-logo{font-family:'Unbounded',sans-serif;font-size:16px;font-weight:700;color:var(--brand);letter-spacing:-.4px}
+.tb-nav{display:flex;gap:4px;flex-wrap:wrap}
+.tb-link{font-size:12px;color:var(--ink2);padding:5px 12px;border-radius:7px;cursor:pointer;transition:.15s;font-weight:500;white-space:nowrap;border:1px solid transparent}
+.tb-link:hover{background:var(--bg3);color:var(--ink)}
+.tb-link.active{background:var(--brand);color:#fff}
+.tb-right{display:flex;align-items:center;gap:9px;font-size:11px;color:var(--ink3);font-weight:500}
+#specBadge{display:none;background:var(--violetbg);border:1px solid #ddd6fe;color:var(--violet);font-size:10px;font-weight:700;letter-spacing:.6px;padding:4px 10px;border-radius:20px}
+
+.wrap{max-width:1240px;margin:0 auto;padding:0 32px 70px}
+@media(max-width:768px){.wrap{padding:0 16px 50px}.topbar{padding:11px 16px}}
+
+/* HERO */
+.hero{padding:44px 0 30px;margin-bottom:32px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-size:11px;letter-spacing:2.2px;text-transform:uppercase;color:var(--brand);font-weight:700;margin-bottom:12px}
+h1{font-family:'Unbounded',sans-serif;font-size:clamp(26px,3.4vw,40px);font-weight:700;line-height:1.08;letter-spacing:-1.4px;margin-bottom:14px}
+h1 em{font-style:normal;color:var(--brand)}
+.hero-p{font-size:14px;color:var(--ink2);max-width:660px}
+
+/* VERDICT BAR — signature element */
+.verdict{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1.5px solid var(--ink);border-radius:12px;overflow:hidden;margin-bottom:34px}
+@media(max-width:820px){.verdict{grid-template-columns:1fr}}
+.vcell{padding:20px 22px;border-right:1.5px solid var(--ink)}
+.vcell:last-child{border-right:none}
+@media(max-width:820px){.vcell{border-right:none;border-bottom:1.5px solid var(--ink)}.vcell:last-child{border-bottom:none}}
+.vlabel{font-size:10px;letter-spacing:1.4px;text-transform:uppercase;font-weight:700;color:var(--ink3);margin-bottom:8px}
+.vhead{font-family:'Unbounded',sans-serif;font-size:19px;font-weight:700;letter-spacing:-.6px;margin-bottom:6px;line-height:1.15}
+.vtext{font-size:12.5px;color:var(--ink2);line-height:1.55}
+.v-good .vhead{color:var(--green)}
+.v-warn .vhead{color:var(--amber)}
+.v-bad .vhead{color:var(--red)}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:11px;margin-bottom:38px}
+.kpi{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 17px;box-shadow:var(--sh);transition:.15s;position:relative}
+.kpi:hover{box-shadow:var(--sh2);border-color:var(--border2)}
+.kpi-l{font-size:10.5px;letter-spacing:.7px;text-transform:uppercase;color:var(--ink3);font-weight:700;margin-bottom:8px}
+.kpi-v{font-family:'Unbounded',sans-serif;font-size:23px;font-weight:700;letter-spacing:-1px;line-height:1;margin-bottom:7px}
+.kpi-d{font-size:11.5px;font-weight:600;display:flex;align-items:center;gap:4px}
+.kpi-ref{font-size:10.5px;color:var(--ink3);margin-top:3px}
+.up{color:var(--green)}.down{color:var(--red)}.flat{color:var(--ink3)}
+
+/* SECTION */
+section{margin-bottom:52px;scroll-margin-top:70px}
+.sec-h{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.sec-h h2{font-family:'Unbounded',sans-serif;font-size:19px;font-weight:700;letter-spacing:-.7px}
+.sec-tag{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:3px 9px;border-radius:5px;background:var(--bg3);color:var(--ink2)}
+.sec-sub{font-size:13px;color:var(--ink2);margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+
+/* CARD */
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:13px;box-shadow:var(--sh)}
+.card-t{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.card-s{font-size:11.5px;color:var(--ink3);margin-bottom:15px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+@media(max-width:900px){.g2,.g3{grid-template-columns:1fr}}
+.chart-h{position:relative;height:230px}
+
+/* TABLE */
+.tbl{overflow-x:auto;border:1px solid var(--border);border-radius:11px;background:#fff;box-shadow:var(--sh);margin-bottom:13px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{padding:10px 14px;text-align:left;font-size:10.5px;letter-spacing:.7px;text-transform:uppercase;color:var(--ink2);font-weight:700;background:var(--bg2);border-bottom:1.5px solid var(--border);white-space:nowrap}
+td{padding:9px 14px;border-bottom:1px solid #f1f5f9}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--bg2)}
+.rowsum td{background:var(--bg3)!important;font-weight:700}
+.rowgood td{background:var(--greenbg)}
+.rowbad td{background:var(--redbg)}
+.num{font-variant-numeric:tabular-nums;font-weight:600}
+
+/* PILL */
+.p{display:inline-block;padding:2.5px 8px;border-radius:5px;font-size:10.5px;font-weight:700;white-space:nowrap}
+.pg{background:var(--greenbg);color:var(--green)}
+.pa{background:var(--amberbg);color:var(--amber)}
+.pr{background:var(--redbg);color:var(--red)}
+.pb{background:var(--bluebg);color:var(--blue)}
+.pn{background:var(--bg3);color:var(--ink2)}
+.pv{background:var(--violetbg);color:var(--violet)}
+
+/* NOTE */
+.note{border-radius:10px;padding:12px 15px;margin-bottom:11px;display:flex;gap:10px;font-size:12.5px;line-height:1.6;border:1px solid}
+.note b{font-weight:700}
+.n-i{flex-shrink:0;font-size:14px;line-height:1.4}
+.n-g{background:var(--greenbg);border-color:#a7f3d0;color:#065f46}
+.n-a{background:var(--amberbg);border-color:#fde68a;color:#92400e}
+.n-r{background:var(--redbg);border-color:#fecaca;color:#991b1b}
+.n-b{background:var(--bluebg);border-color:#bfdbfe;color:#1e40af}
+
+/* BAR */
+.brow{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.blab{font-size:11.5px;color:var(--ink2);width:175px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.btrk{flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.bfil{height:100%;border-radius:4px}
+.bval{font-size:11.5px;font-weight:700;width:96px;flex-shrink:0;text-align:right;font-variant-numeric:tabular-nums}
+
+/* STATBOX */
+.sb-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:9px}
+.sb{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:13px;text-align:center}
+.sb-l{font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-bottom:5px}
+.sb-v{font-family:'Unbounded',sans-serif;font-size:21px;font-weight:700;letter-spacing:-.8px;line-height:1}
+.sb-d{font-size:10.5px;margin-top:4px;font-weight:600}
+
+/* SEASON */
+.seas{display:grid;grid-template-columns:repeat(12,1fr);gap:5px;margin:14px 0 10px}
+@media(max-width:700px){.seas{grid-template-columns:repeat(6,1fr)}}
+.sc{border-radius:8px;padding:11px 3px;text-align:center;border:1px solid transparent}
+.sc-m{font-size:9.5px;font-weight:700;display:block;margin-bottom:3px;opacity:.75}
+.sc-l{font-size:9.5px;font-weight:700}
+.lo{background:var(--bg3);color:var(--ink3)}
+.md{background:#fef3c7;color:#92400e}
+.hi{background:#d1fae5;color:#065f46}
+.pk{background:#a7f3d0;color:#064e3b}
+.cur{border-color:var(--brand);box-shadow:0 0 0 2px rgba(13,148,136,.18)}
+.leg{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--ink2);font-weight:500}
+.leg span{display:flex;align-items:center;gap:5px}
+.sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+
+/* CLIENT SUMMARY */
+.summary{background:linear-gradient(135deg,#f0fdfa 0%,#ecfdf5 100%);border:1.5px solid #99f6e4;border-radius:14px;padding:28px;margin-bottom:14px}
+.summary h3{font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700;color:var(--brand2);margin-bottom:14px;letter-spacing:-.4px}
+.summary p{font-size:13.5px;color:#134e4a;line-height:1.75;margin-bottom:11px}
+.summary p:last-child{margin-bottom:0}
+
+/* SPECIALIST */
+#spec{display:none}
+.spec-card{background:var(--violetbg);border:1.5px solid #ddd6fe;border-radius:14px;padding:28px;position:relative;margin-top:22px}
+.spec-badge{position:absolute;top:-11px;left:22px;background:var(--violet);color:#fff;font-size:10px;font-weight:700;letter-spacing:1.4px;padding:4px 13px;border-radius:20px}
+.spec-t{font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700;color:var(--violet);margin-bottom:18px;letter-spacing:-.4px}
+.spec-h{font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--violet);margin:22px 0 11px;padding-top:16px;border-top:1px solid #ddd6fe}
+.spec-h:first-of-type{margin-top:0;padding-top:0;border-top:none}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+@media(max-width:768px){.sgrid{grid-template-columns:1fr}}
+.sitem{background:#fff;border:1px solid #e9d5ff;border-radius:10px;padding:14px}
+.sitem-l{font-size:10px;text-transform:uppercase;letter-spacing:.9px;color:var(--violet);font-weight:700;margin-bottom:5px}
+.sitem-v{font-family:'Unbounded',sans-serif;font-size:19px;font-weight:700;margin-bottom:6px;letter-spacing:-.6px}
+.sitem-n{font-size:11.5px;color:var(--ink2);line-height:1.6}
+.slist{list-style:none}
+.slist li{font-size:12.5px;color:var(--ink2);padding:7px 0;border-bottom:1px solid #ede9fe;line-height:1.6;display:flex;gap:9px}
+.slist li:last-child{border-bottom:none}
+.slist li::before{content:'→';flex-shrink:0;color:var(--violet);font-weight:700}
+.slist li b{color:var(--ink)}
+
+/* FOOTER */
+footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink3);flex-wrap:wrap;gap:8px}
+.src{font-size:10.5px;color:var(--ink3);margin-top:7px;font-style:italic}
 </style>
 </head>
 <body>
+
 <div id="gate">
   <div class="gate-box">
     <div class="gate-logo">SAVAKS</div>
-    <div class="gate-sub">Аналитический отчёт · Июль 2026</div>
-    <input type="password" class="gate-input" id="gateInput" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()">
-    <button class="gate-btn" onclick="login()">ВОЙТИ</button>
-    <div class="gate-error" id="gateErr">Неверный пароль</div>
+    <div class="gate-sub">Отчёт · Июль 2026</div>
+    <input type="password" class="gate-input" id="gi" placeholder="••••••" autocomplete="off">
+    <button class="gate-btn" onclick="login()">Открыть отчёт</button>
+    <div class="gate-err" id="ge">Неверный пароль</div>
   </div>
 </div>
 
 <div id="report">
-  <div class="topbar">
-    <div class="topbar-logo">SAVAKS</div>
-    <div class="topbar-links">
-      <span class="topbar-link active" onclick="scrollTo2('hero')">Обзор</span>
-      <span class="topbar-link" onclick="scrollTo2('june')">Июнь</span>
-      <span class="topbar-link" onclick="scrollTo2('compare')">Динамика</span>
-      <span class="topbar-link" onclick="scrollTo2('seo')">SEO</span>
-      <span class="topbar-link" onclick="scrollTo2('season')">Сезон</span>
-      <span class="topbar-link" onclick="scrollTo2('conclusions')">Выводы</span>
-    </div>
-    <div class="topbar-right">
-      <span id="spec-badge-topbar">🔒 СПЕЦИАЛИСТ</span>
-      <span>06.07.2026 · v6.0</span>
-    </div>
+<div class="topbar">
+  <div class="tb-logo">SAVAKS</div>
+  <nav class="tb-nav">
+    <span class="tb-link active" data-s="top">Итоги</span>
+    <span class="tb-link" data-s="direct">Реклама</span>
+    <span class="tb-link" data-s="seo">SEO</span>
+    <span class="tb-link" data-s="dyn">Динамика</span>
+    <span class="tb-link" data-s="season">Сезон</span>
+    <span class="tb-link" data-s="plan">План</span>
+  </nav>
+  <div class="tb-right"><span id="specBadge">СПЕЦИАЛИСТ</span><span>05.08.2026 · v7.0</span></div>
+</div>
+
+<div class="wrap">
+
+<div class="hero" id="top">
+  <div class="eyebrow">Июль 2026 · пятый месяц наблюдений</div>
+  <h1>EVA-коврики <em>SAVAKS</em><br>Санкт-Петербург</h1>
+  <p class="hero-p">Директ 01–31.07 · SEO Яндекс срез 31.07 · Вебмастер июль · Ссылочное 02–31.07. В июле возобновили рекламу и запустили Товарную кампанию — первые данные за 2 дня работы.</p>
+</div>
+
+<!-- VERDICT -->
+<div class="verdict">
+  <div class="vcell v-good">
+    <div class="vlabel">Главное достижение</div>
+    <div class="vhead">397 запросов в ТОП-10</div>
+    <div class="vtext">За 5 месяцев рост с 12 до 397 позиций. Средняя позиция в Яндексе — 2.3. Органика вышла на первое место среди всех каналов.</div>
   </div>
-
-  <div class="container">
-
-    <div class="hero" id="hero">
-      <div class="hero-label">Отчёт за июнь 2026 · Март — Июнь 2026 · 4 месяца данных</div>
-      <h1 class="hero-title">SAVAKS — EVA коврики<br><span>Санкт-Петербург</span></h1>
-      <p class="hero-desc">Директ июнь: данные из Метрики (нет отдельного файла) · Метрика 01–30.06 · SEO Яндекс 14–30.06 · Ссылочное 07.06–06.07.2026</p>
-    </div>
-
-    <!-- KPI ИЮНЬ -->
-    <div class="kpi-grid">
-      <div class="kpi-card green">
-        <div class="kpi-label">SEO ТОП-3</div>
-        <div class="kpi-value">121</div>
-        <div class="kpi-note good">Май: 44 → +175% 🔥</div>
-        <div class="kpi-delta">ТОП-10: 233 (+124%)</div>
-      </div>
-      <div class="kpi-card red">
-        <div class="kpi-label">Директ конверсии</div>
-        <div class="kpi-value">0</div>
-        <div class="kpi-note bad">РСЯ 6 дней · Поиск 0 дней</div>
-        <div class="kpi-delta">Бюджет = 0 ₽ весь месяц</div>
-      </div>
-      <div class="kpi-card yellow">
-        <div class="kpi-label">Метрика — визиты</div>
-        <div class="kpi-value">474</div>
-        <div class="kpi-note warn">Май: 644 → −26%</div>
-        <div class="kpi-delta">Цели: 21 (стабильно)</div>
-      </div>
-      <div class="kpi-card green">
-        <div class="kpi-label">Google орг. CR</div>
-        <div class="kpi-value">7.9%</div>
-        <div class="kpi-note good">88 визитов, 7 целей</div>
-        <div class="kpi-delta">Лучший канал по конверсии</div>
-      </div>
-      <div class="kpi-card green">
-        <div class="kpi-label">Яндекс орг. CR</div>
-        <div class="kpi-value">5.9%</div>
-        <div class="kpi-note good">101 визит, 6 целей</div>
-        <div class="kpi-delta">SEO — основной канал конверсий</div>
-      </div>
-      <div class="kpi-card green">
-        <div class="kpi-label">Ссылочное Яндекс</div>
-        <div class="kpi-value">87</div>
-        <div class="kpi-note good">из 154 запросов в ТОП-10</div>
-        <div class="kpi-delta">56% ключей — средняя ≤10</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Bounce rate</div>
-        <div class="kpi-value">34.4%</div>
-        <div class="kpi-note warn">Май: 28.6% → слегка хуже</div>
-        <div class="kpi-delta">Глубина 3.82 (май: 3.62)</div>
-      </div>
-      <div class="kpi-card green">
-        <div class="kpi-label">SEO ТОП-30</div>
-        <div class="kpi-value">410</div>
-        <div class="kpi-note good">Май: 237 → +73%</div>
-        <div class="kpi-delta">31–100: 167 (май: 400 ↓)</div>
-      </div>
-    </div>
-
-    <!-- SECTION 01: ИЮНЬ -->
-    <div class="section" id="june">
-      <div class="section-header">
-        <span class="section-num">01</span>
-        <h2 class="section-title">Июнь 2026 — детальный разбор</h2>
-      </div>
-
-      <!-- Директ из Метрики -->
-      <div class="alert-box a-red">
-        <div class="alert-ico">🚨</div>
-        <div><b>Директ июнь: Поиск не запускался, РСЯ работала 6 дней из 30 — 0 ₽ расход, 0 конверсий.</b> Бюджет закончился ещё в мае (потрачено 2 456 ₽ за 02–07 мая). В июне РСЯ откликнулась остаточными показами: 8 044 показа, 44 клика, 0 ₽. Поиск-кампания не показывалась ни одного дня. Фактически Директ в июне не работал.</div>
-      </div>
-
-      <div class="two-col">
-        <div class="chart-card">
-          <div class="chart-title">Метрика — июнь 2026</div>
-          <div class="chart-subtitle">474 визита · 378 уникальных · 21 цель</div>
-          <div class="chart-title" style="margin-bottom:8px">Директ — июнь 2026 (файл подтверждён)</div>
-          <div class="table-wrap" style="margin-bottom:10px">
-            <table>
-              <thead><tr><th>Кампания</th><th>Показы</th><th>Клики</th><th>Расход</th><th>Конв.</th><th>Дней работы</th><th>Статус</th></tr></thead>
-              <tbody>
-                <tr><td>Поиск</td><td>0</td><td>0</td><td class="hlr">0 ₽</td><td class="hlr">0</td><td class="hlr">0 из 30</td><td><span class="tag tr">Не запускался</span></td></tr>
-                <tr><td>РСЯ</td><td>8 044</td><td>44</td><td class="hlr">0 ₽</td><td class="hlr">0</td><td class="hlr">6 из 30</td><td><span class="tag ty">Остаточные показы</span></td></tr>
-                <tr style="font-weight:600;background:rgba(255,255,255,.02)"><td>Итого</td><td>8 044</td><td>44</td><td class="hlr">0 ₽</td><td class="hlr">0</td><td class="hlr">6 из 30</td><td><span class="tag tr">Бюджет закончился</span></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="chart-title" style="margin-bottom:8px">Метрика — источники июнь 2026</div>
-          <div class="table-wrap" style="margin-bottom:0">
-            <table>
-              <thead><tr><th>Источник</th><th>Визиты</th><th>Цели</th><th>CR%</th><th>Отказы%</th><th>Глубина</th></tr></thead>
-              <tbody>
-                <tr><td>Google органика</td><td>88</td><td class="hlg">7</td><td class="hlg">7.9%</td><td>20.5%</td><td>3.03</td></tr>
-                <tr><td>Яндекс органика</td><td>101</td><td class="hlg">6</td><td class="hlg">5.9%</td><td>15.8%</td><td>3.21</td></tr>
-                <tr><td>Прямые заходы</td><td>158</td><td>5</td><td>3.2%</td><td class="hlr">73.4%</td><td>1.59</td></tr>
-                <tr><td>Директ (РСЯ, 6 дней)</td><td>44</td><td class="hlr">0</td><td class="hlr">0%</td><td>—</td><td>—</td></tr>
-                <tr><td>Yandex.ru ссылки</td><td>2</td><td class="hlg">1</td><td>50%</td><td>0%</td><td>4.5</td></tr>
-                <tr><td>QR-код</td><td>5</td><td>0</td><td>—</td><td>0%</td><td>5.6</td></tr>
-                <tr style="font-weight:600;background:rgba(255,255,255,.02)"><td>Итого</td><td>474</td><td>21</td><td>4.4%</td><td>34.4%</td><td>3.82</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-title">Органика конвертирует</div>
-          <div class="chart-subtitle">Июнь: 13 из 21 цели (62%) — из поисковой органики</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-            <div style="background:var(--bg3);border:1px solid rgba(104,211,145,.3);border-radius:10px;padding:14px;text-align:center">
-              <div style="font-size:10px;color:var(--text3);margin-bottom:4px">GOOGLE ОРГАНИКА</div>
-              <div style="font-family:'Unbounded',sans-serif;font-size:26px;font-weight:700;color:var(--green)">7.9%</div>
-              <div style="font-size:11px;color:var(--text2);margin-top:3px">CR · 88 визитов</div>
-            </div>
-            <div style="background:var(--bg3);border:1px solid rgba(79,209,197,.2);border-radius:10px;padding:14px;text-align:center">
-              <div style="font-size:10px;color:var(--text3);margin-bottom:4px">ЯНДЕКС ОРГАНИКА</div>
-              <div style="font-family:'Unbounded',sans-serif;font-size:26px;font-weight:700;color:var(--accent)">5.9%</div>
-              <div style="font-size:11px;color:var(--text2);margin-top:3px">CR · 101 визит</div>
-            </div>
-          </div>
-          <div class="alert-box a-yellow" style="margin-bottom:0"><div class="alert-ico">⚠️</div><div><b>Прямые заходы: bounce rate 73.4%.</b> 158 визитов, 5 целей, CR 3.2% — но отказов втрое больше нормы. Скорее всего это брендовые поиски, которые Метрика классифицирует как «прямые» из-за метки. Коллтрекинг прояснил бы.</div></div>
-        </div>
-      </div>
-
-      <!-- SEO Июнь -->
-      <div class="two-col">
-        <div class="chart-card">
-          <div class="chart-title">SEO Яндекс — срез 30.06.2026</div>
-          <div class="chart-subtitle">1 866 ключей · продолжение взрыва позиций</div>
-          <div class="seo-dist">
-            <div class="sd"><div class="sd-label">ТОП-3</div><div class="sd-val" style="color:var(--green)">121</div><div class="sd-sub">май: 44</div><div class="sd-delta" style="color:var(--green)">▲+175%🔥</div></div>
-            <div class="sd"><div class="sd-label">ТОП-10</div><div class="sd-val" style="color:var(--green)">233</div><div class="sd-sub">май: 104</div><div class="sd-delta" style="color:var(--green)">▲+124%🔥</div></div>
-            <div class="sd"><div class="sd-label">ТОП-30</div><div class="sd-val" style="color:var(--green)">410</div><div class="sd-sub">май: 237</div><div class="sd-delta" style="color:var(--green)">▲+73%</div></div>
-            <div class="sd"><div class="sd-label">31–100</div><div class="sd-val" style="color:var(--yellow)">167</div><div class="sd-sub">май: 400</div><div class="sd-delta" style="color:var(--green)">▼−233</div></div>
-            <div class="sd"><div class="sd-label">Вне ТОП</div><div class="sd-val" style="color:var(--text3)">1 289</div><div class="sd-sub">май: 1 229</div><div class="sd-delta" style="color:var(--text3)">≈ стаб.</div></div>
-          </div>
-          <div class="alert-box a-green" style="margin-bottom:0"><div class="alert-ico">🔥</div><div>ТОП-3 достиг 121 запроса. Сотни коммерческих запросов на позиции 1–2. Это прямой результат SEO-работы — органика заменяет рекламу по эффективности.</div></div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-title">ТОП-1 коммерческие запросы (выборка)</div>
-          <div class="chart-subtitle">Позиция 1 · 30.06.2026 · без брендовых</div>
-          <div class="bar-row"><div class="bar-label">эва коврики спб</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--green)"></div></div><div class="bar-val hlg">2→1 ▲+1</div></div>
-          <div class="bar-row"><div class="bar-label">коврики эва санкт петербург</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--green)"></div></div><div class="bar-val hlg">7→1 ▲+6</div></div>
-          <div class="bar-row"><div class="bar-label">эва коврики в салон</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--green)"></div></div><div class="bar-val hlg">27→1 ▲+26</div></div>
-          <div class="bar-row"><div class="bar-label">эва коврики на заказ</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--green)"></div></div><div class="bar-val hlg">4→1 ▲+3</div></div>
-          <div class="bar-row"><div class="bar-label">про eva коврики</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--green)"></div></div><div class="bar-val hlg">22→1 ▲+21</div></div>
-          <div class="bar-row"><div class="bar-label">магазин эва ковриков</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--green)"></div></div><div class="bar-val hlg">5→1 ▲+4</div></div>
-          <div class="bar-row"><div class="bar-label">коврики eva купить</div><div class="bar-track"><div class="bar-fill" style="width:72%;background:var(--accent)"></div></div><div class="bar-val hlb">36→4 ▲+32</div></div>
-        </div>
-      </div>
-
-      <div class="two-col">
-        <div class="chart-card">
-          <div class="chart-title">Падения позиций (14→30.06)</div>
-          <div class="chart-subtitle">Атрибутные флуктуации — не системные</div>
-          <div class="bar-row"><div class="bar-label">ева премиум коврики</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--red)"></div></div><div class="bar-val hlr">1→64 ▼−63</div></div>
-          <div class="bar-row"><div class="bar-label">коврики ева без бортов</div><div class="bar-track"><div class="bar-fill" style="width:99%;background:var(--red)"></div></div><div class="bar-val hlr">25→99 ▼−74</div></div>
-          <div class="bar-row"><div class="bar-label">резиновый коврик eva</div><div class="bar-track"><div class="bar-fill" style="width:88%;background:var(--red)"></div></div><div class="bar-val hlr">9→73 ▼−64</div></div>
-          <div class="bar-row"><div class="bar-label">эва коврики озон</div><div class="bar-track"><div class="bar-fill" style="width:82%;background:var(--yellow)"></div></div><div class="bar-val hly">16→76 ▼−60</div></div>
-          <div class="bar-row"><div class="bar-label">eva коврики 3d</div><div class="bar-track"><div class="bar-fill" style="width:82%;background:var(--yellow)"></div></div><div class="bar-val hly">26→85 ▼−59</div></div>
-          <div class="alert-box a-yellow" style="margin-top:10px;margin-bottom:0"><div class="alert-ico">⚠️</div><div>«Ева премиум коврики» 1→64 — атрибутный запрос, конкурент выкупил топ. «Без бортов», «3d» — специфичные вариации. «Озон» — маркетплейс всегда конкурирует. Системной угрозы нет.</div></div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-title">Ссылочная масса — июнь 2026</div>
-          <div class="chart-subtitle">Яндекс: 87/154 ключей avg ≤10 · Google: 87/154</div>
-          <div class="bar-row"><div class="bar-label">изготовление эва ковриков</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--green)"></div></div><div class="bar-val hlg">avg 1.0 · 7 дн</div></div>
-          <div class="bar-row"><div class="bar-label">эва коврики в салон (fr.30)</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--green)"></div></div><div class="bar-val hlg">avg 1.5</div></div>
-          <div class="bar-row"><div class="bar-label">эва коврик спб (fr.214)</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--green)"></div></div><div class="bar-val hlg">avg 1.7</div></div>
-          <div class="bar-row"><div class="bar-label">эва коврики спб (fr.214)</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--green)"></div></div><div class="bar-val hlg">avg 1.8</div></div>
-          <div class="bar-row"><div class="bar-label">ева коврики спб (fr.194)</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--green)"></div></div><div class="bar-val hlg">avg 2.2</div></div>
-          <div class="bar-row"><div class="bar-label">премиум коврики (fr.56)</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--accent)"></div></div><div class="bar-val hlb">avg 2.5</div></div>
-          <div class="alert-box a-blue" style="margin-top:10px;margin-bottom:0"><div class="alert-ico">📊</div><div>Высокочастотные ключи (214, 194) вышли в avg ≤2.0 — это прямой трафиковый потенциал. Google показывает такие же результаты — синергия ссылочного начала работать.</div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECTION 02: СРАВНЕНИЕ 4 МЕСЯЦА -->
-    <div class="section" id="compare">
-      <div class="section-header">
-        <span class="section-num">02</span>
-        <h2 class="section-title">Динамика — 4 месяца</h2>
-      </div>
-
-      <div class="chart-card">
-        <div class="chart-title">Директ — сравнение март / апрель / май / июнь</div>
-        <div class="chart-subtitle">Источник: файлы Директа (март–май) + Метрика (июнь)</div>
-        <div class="table-wrap" style="margin-bottom:0">
-          <table>
-            <thead><tr><th>Показатель</th><th>Март</th><th>Апрель</th><th>Май</th><th>Июнь</th><th>Тренд</th></tr></thead>
-            <tbody>
-              <tr><td>Расход Директ, ₽</td><td style="color:var(--text3)">4 883</td><td style="color:var(--text3)">8 470</td><td class="hly">2 456 ⚠</td><td class="hlr">0 ₽ (6 дн. РСЯ)</td><td>▼ Бюджет не пополнен</td></tr>
-              <tr><td>Клики Директ</td><td style="color:var(--text3)">501</td><td style="color:var(--text3)">310</td><td style="color:var(--text3)">312</td><td class="hlr">44 (6 дн.)</td><td>▼ Фактически не работал</td></tr>
-              <tr><td>Конверсии (Директ)</td><td style="color:var(--text3)">6</td><td style="color:var(--text3)">3</td><td class="hlg">6</td><td class="hlr">0</td><td>Нет бюджета в июне</td></tr>
-              <tr><td>CPA, ₽</td><td style="color:var(--text3)">814</td><td style="color:var(--text3)">2 823</td><td class="hlg">409</td><td class="hlr">∞ (0 ₽ расход)</td><td>Июнь — пустой</td></tr>
-              <tr><td>CPC Поиск, ₽</td><td style="color:var(--text3)">48.78</td><td style="color:var(--text3)">54.77</td><td class="hly">62.97</td><td class="hlr">—</td><td>Поиск не запускался</td></tr>
-              <tr><td>CTR Поиск, %</td><td style="color:var(--text3)">2.76</td><td style="color:var(--text3)">—</td><td class="hly">3.21</td><td class="hlr">—</td><td>Поиск не запускался</td></tr>
-              <tr><td>SEO ТОП-3</td><td style="color:var(--text3)">7</td><td style="color:var(--text3)">8</td><td class="hlg">44</td><td class="hlg">121 🔥</td><td>▲▲ Взрывной рост</td></tr>
-              <tr><td>SEO ТОП-10</td><td style="color:var(--text3)">12</td><td style="color:var(--text3)">8</td><td class="hlg">104</td><td class="hlg">233 🔥</td><td>▲▲ Взрывной рост</td></tr>
-              <tr><td>SEO ТОП-30</td><td style="color:var(--text3)">48</td><td style="color:var(--text3)">71</td><td class="hlg">237</td><td class="hlg">410</td><td>▲ Устойчивый рост</td></tr>
-              <tr><td>Метрика — визиты</td><td style="color:var(--text3)">~1090*</td><td style="color:var(--text3)">—</td><td class="hlg">644</td><td class="hly">474</td><td>*Дек–март / Jul падение</td></tr>
-              <tr><td>Метрика — цели</td><td style="color:var(--text3)">4</td><td style="color:var(--text3)">—</td><td class="hlg">21</td><td class="hlg">21</td><td>▲ Стабильно высокий уровень</td></tr>
-              <tr><td>Bounce rate</td><td style="color:var(--text3)">42.5%</td><td style="color:var(--text3)">—</td><td class="hlg">28.6%</td><td class="hly">34.4%</td><td>Улучшился vs дек-март</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div style="font-size:10px;color:var(--text3);margin-top:8px">* Data Insight 2024, eLama, click.ru — отраслевые ориентиры · Нормы SAVAKS формируются с июля 2026</div>
-      </div>
-
-      <div class="two-col">
-        <div class="chart-card">
-          <div class="chart-title">SEO — взрывная динамика ТОП-3/10</div>
-          <div class="chart-subtitle">4 месяца · Яндекс · 1 866 ключей</div>
-          <div class="chart-wrap"><canvas id="seoChart"></canvas></div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-title">Директ — расход и конверсии по месяцам</div>
-          <div class="chart-subtitle">Март–Июнь 2026 · ⚠ Июнь — данные из Метрики</div>
-          <div class="chart-wrap"><canvas id="directChart"></canvas></div>
-        </div>
-      </div>
-
-      <div class="chart-card">
-        <div class="chart-title">Источники конверсий — Метрика май vs июнь</div>
-        <div class="two-col" style="gap:11px">
-          <div style="background:var(--bg3);border:1px solid rgba(104,211,145,.2);border-radius:10px;padding:14px">
-            <div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">МАЙ — 21 цель</div>
-            <div class="bar-row"><div class="bar-label">Органика</div><div class="bar-track"><div class="bar-fill" style="width:81%;background:var(--green)"></div></div><div class="bar-val hlg">17 (81%)</div></div>
-            <div class="bar-row"><div class="bar-label">Реклама</div><div class="bar-track"><div class="bar-fill" style="width:33%;background:var(--accent)"></div></div><div class="bar-val hlb">7 (33%)</div></div>
-            <div class="bar-row"><div class="bar-label">Прямые</div><div class="bar-track"><div class="bar-fill" style="width:10%;background:var(--border2)"></div></div><div class="bar-val" style="color:var(--text3)">2 (10%)</div></div>
-          </div>
-          <div style="background:var(--bg3);border:1px solid rgba(79,209,197,.2);border-radius:10px;padding:14px">
-            <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">ИЮНЬ — 21 цель</div>
-            <div class="bar-row"><div class="bar-label">Органика (Я+G)</div><div class="bar-track"><div class="bar-fill" style="width:62%;background:var(--green)"></div></div><div class="bar-val hlg">13 (62%)</div></div>
-            <div class="bar-row"><div class="bar-label">Прямые</div><div class="bar-track"><div class="bar-fill" style="width:24%;background:var(--accent)"></div></div><div class="bar-val hlb">5 (24%)</div></div>
-            <div class="bar-row"><div class="bar-label">Реклама</div><div class="bar-track"><div class="bar-fill" style="width:0%;background:var(--red)"></div></div><div class="bar-val hlr">0 (0%)</div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECTION 03: SEO -->
-    <div class="section" id="seo">
-      <div class="section-header">
-        <span class="section-num">03</span>
-        <h2 class="section-title">SEO — динамика позиций</h2>
-      </div>
-
-      <div class="two-col">
-        <div class="chart-card">
-          <div class="chart-title">Коммерческие запросы ТОП-3 (30.06)</div>
-          <div class="chart-subtitle">Позиции 1–3 · без брендовых · выборка лучших</div>
-          <div class="table-wrap" style="margin-bottom:0">
-            <table>
-              <thead><tr><th>Запрос</th><th>Июнь</th><th>Май</th><th>Δ</th></tr></thead>
-              <tbody>
-                <tr style="background:rgba(104,211,145,.05)"><td>эва коврики спб</td><td class="hlg">1</td><td>13</td><td class="hlg">▲+12</td></tr>
-                <tr style="background:rgba(104,211,145,.05)"><td>коврики эва санкт петербург</td><td class="hlg">1</td><td>13</td><td class="hlg">▲+12</td></tr>
-                <tr style="background:rgba(104,211,145,.05)"><td>эва коврики в салон</td><td class="hlg">1</td><td>—</td><td class="hlg">Новый ТОП-1</td></tr>
-                <tr style="background:rgba(104,211,145,.05)"><td>эва коврики на заказ</td><td class="hlg">1</td><td>1</td><td class="hlg">= Стабильно</td></tr>
-                <tr style="background:rgba(104,211,145,.05)"><td>ворсовые коврики ева</td><td class="hlg">1</td><td>1</td><td class="hlg">= Стабильно</td></tr>
-                <tr style="background:rgba(104,211,145,.05)"><td>про eva коврики</td><td class="hlg">1</td><td>1</td><td class="hlg">= Стабильно</td></tr>
-                <tr style="background:rgba(104,211,145,.05)"><td>магазин эва ковриков</td><td class="hlg">1</td><td>5</td><td class="hlg">▲+4</td></tr>
-                <tr><td>коврики eva купить</td><td class="hlg">4</td><td>—</td><td class="hlg">Новый вход</td></tr>
-                <tr><td>купить коврики в салон эва</td><td class="hlg">3</td><td>—</td><td class="hlg">Новый вход</td></tr>
-                <tr><td>заказать коврик eva</td><td class="hlg">2</td><td>—</td><td class="hlg">Новый вход</td></tr>
-                <tr><td>ева коврики бежевый</td><td class="hlg">8</td><td>—</td><td class="hlg">+34</td></tr>
-                <tr><td>эва коврики артикул</td><td class="hlg">6</td><td>11</td><td class="hlg">▲+5</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-title">SEO — накопленная динамика март→июнь</div>
-          <div class="chart-subtitle">Ключевые коммерческие запросы</div>
-          <div class="table-wrap" style="margin-bottom:0">
-            <table>
-              <thead><tr><th>Запрос</th><th>Март</th><th>Апрель</th><th>Май</th><th>Июнь</th></tr></thead>
-              <tbody>
-                <tr><td>эва коврики спб</td><td style="color:var(--text3)">38</td><td style="color:var(--text3)">39</td><td style="color:var(--text3)">13</td><td class="hlg">1 🔥</td></tr>
-                <tr><td>коврики эва санкт петербург</td><td style="color:var(--text3)">18</td><td style="color:var(--text3)">24</td><td style="color:var(--text3)">13</td><td class="hlg">1 🔥</td></tr>
-                <tr><td>эва коврики в салон</td><td style="color:var(--text3)">—</td><td style="color:var(--text3)">—</td><td style="color:var(--text3)">—</td><td class="hlg">1 🔥</td></tr>
-                <tr><td>ворсовые коврики ева</td><td style="color:var(--text3)">9</td><td style="color:var(--text3)">16</td><td style="color:var(--text3)">1</td><td class="hlg">1 ✓</td></tr>
-                <tr><td>эва коврики на заказ</td><td style="color:var(--text3)">—</td><td style="color:var(--text3)">26</td><td style="color:var(--text3)">1</td><td class="hlg">1 ✓</td></tr>
-                <tr><td>изготовление эва ковриков</td><td style="color:var(--text3)">9</td><td style="color:var(--text3)">11</td><td style="color:var(--text3)">1</td><td class="hlg">1 ✓</td></tr>
-                <tr><td>ева премиум коврики</td><td style="color:var(--text3)">—</td><td style="color:var(--text3)">—</td><td style="color:var(--text3)">1</td><td class="hlr">64 ⚠</td></tr>
-                <tr><td>eva коврики спб</td><td style="color:var(--text3)">27</td><td style="color:var(--text3)">39</td><td style="color:var(--text3)">13</td><td class="hlg">—*</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <div style="font-size:10px;color:var(--text3);margin-top:6px">* eva коврики спб (англ.) — в июньском файле отдельно не показан, включён в общий рост ТОП-1 кластера</div>
-        </div>
-      </div>
-
-      <div class="chart-card">
-        <div class="chart-title">Приоритеты SEO — июль 2026</div>
-        <div class="table-wrap" style="margin-bottom:0">
-          <table>
-            <thead><tr><th>Задача</th><th>Запросы</th><th>Обоснование</th><th>Приоритет</th></tr></thead>
-            <tbody>
-              <tr><td>Удержать ТОП-1 по коммерческим кластерам</td><td>эва коврики спб, коврики эва санкт петербург и ещё 20+</td><td>Достигнуты ТОП-1 — конкуренты видят рост и будут контратаковать</td><td><span class="tag tr">🔴 Срочно</span></td></tr>
-              <tr><td>Вернуть «ева премиум коврики» в ТОП-5</td><td>ева премиум коврики (1→64)</td><td>Был #1 в мае — одна из лучших позиций. Конкурент перехватил</td><td><span class="tag tr">🔴 Срочно</span></td></tr>
-              <tr><td>Страницы по Toyota, Kia, Hyundai (ТОП-5 марок)</td><td>ева коврики тойота (72), eva коврики toyota (58)</td><td>Упали в апреле, не восстановились. Высокочастотный кластер</td><td><span class="tag ty">🟡 Важно</span></td></tr>
-              <tr><td>Развить новые ТОП-10 запросы</td><td>коврики eva купить (4), купить коврики в салон эва (3)</td><td>Новые входы июня — закрепить контентом и ссылочным</td><td><span class="tag ty">🟡 Важно</span></td></tr>
-              <tr><td>Устранить падения по «без бортов», «3d»</td><td>коврики ева без бортов (99), eva коврики 3d (85)</td><td>Специфичные вариации с потенциальным трафиком</td><td><span class="tag tgr">Наблюдение</span></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECTION 04: SEASON -->
-    <div class="section" id="season">
-      <div class="section-header">
-        <span class="section-num">04</span>
-        <h2 class="section-title">Сезонность и конкурентное давление</h2>
-      </div>
-
-      <div class="chart-card">
-        <div class="chart-title">Сезонный индекс — авто-коврики РФ · июль = спад аукциона</div>
-        <div class="chart-subtitle">Данные Wordstat + 4 месяца факта CPC подтверждают модель</div>
-        <div class="season-grid" id="seasonGrid"></div>
-        <div style="display:flex;gap:14px;margin-top:10px;font-size:11px;color:var(--text2);flex-wrap:wrap">
-          <span style="display:flex;align-items:center;gap:5px"><span style="width:11px;height:11px;background:rgba(74,85,104,.3);border-radius:3px;display:inline-block"></span>Низкий</span>
-          <span style="display:flex;align-items:center;gap:5px"><span style="width:11px;height:11px;background:rgba(246,173,85,.2);border-radius:3px;display:inline-block"></span>Средний</span>
-          <span style="display:flex;align-items:center;gap:5px"><span style="width:11px;height:11px;background:rgba(104,211,145,.25);border-radius:3px;display:inline-block"></span>Высокий</span>
-          <span style="display:flex;align-items:center;gap:5px"><span style="width:11px;height:11px;background:rgba(104,211,145,.4);border-radius:3px;display:inline-block"></span>Пик</span>
-          <span style="display:flex;align-items:center;gap:5px"><span style="border:2px solid var(--accent);width:11px;height:11px;border-radius:3px;display:inline-block"></span>Мы сейчас (июль)</span>
-        </div>
-      </div>
-
-      <div class="two-col">
-        <div class="chart-card">
-          <div class="chart-title">CPC — факт 3 месяцев + прогноз</div>
-          <div class="chart-subtitle">Июль — спад аукциона. Хорошее время для теста объявлений.</div>
-          <div class="chart-wrap" style="height:200px"><canvas id="cpcChart"></canvas></div>
-          <div style="margin-top:10px;padding:10px;background:var(--bg3);border-radius:8px;font-size:12px;color:var(--text2);border:1px solid var(--border)">
-            📊 Июль–август — аукцион дешевеет. CPC может снизиться до 45–55 ₽. Это лучшее время для наращивания бюджета Директа и накопления статистики перед осенним пиком (сен–окт).
-          </div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-title">Конкурентная обстановка</div>
-          <div class="chart-subtitle">Июль — передышка. Готовимся к осеннему пику.</div>
-          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px">
-            <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">📅 Что делаем в июле</div>
-            <div style="font-size:12px;color:var(--text2);line-height:1.7">
-              1. Диагностируем Директ — почему 0 конверсий в июне<br>
-              2. Тест объявлений Поиска (CTR &lt;4% за 14+ дней)<br>
-              3. Создаём SEO-страницы по Toyota, Kia, Hyundai<br>
-              4. Готовим ретаргетинг под осенний пик<br>
-              5. Подключаем коллтрекинг до сентября
-            </div>
-          </div>
-          <div style="background:var(--bg3);border:1px solid rgba(104,211,145,.2);border-radius:10px;padding:14px">
-            <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">⚡ Конкурентные плюсы SAVAKS</div>
-            <div style="font-size:12px;color:var(--text2);line-height:1.8">
-              ✓ 233 ключа в ТОП-10 Яндекса — рост в 29× за 4 месяца<br>
-              ✓ Google CR 7.9% — выше среднего по рынку<br>
-              ✓ Производитель, не перекупщик — 1–2 дня изготовления<br>
-              ✓ 2000 моделей по индивидуальным лекалам
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECTION 05: CONCLUSIONS -->
-    <div class="section" id="conclusions">
-      <div class="section-header">
-        <span class="section-num">05</span>
-        <h2 class="section-title">Выводы и действия</h2>
-      </div>
-
-      <div class="conclusion-client">
-        <div class="conclusion-title">📊 Итоговая динамика — июнь 2026</div>
-        <p>Июнь завершил первое полугодие с выдающимися SEO-результатами: сайт SAVAKS достиг 121 позиции в ТОП-3 Яндекса (в январе их не было ни одной) и 233 позиций в ТОП-10. Это прямой результат планомерной работы по контенту и ссылочному продвижению — органический поиск стал главным источником конверсий, обеспечивая CR 5.9% из Яндекса и 7.9% из Google.</p>
-        <p>Количество целей на сайте за июнь (21) осталось на уровне мая, несмотря на снижение общего числа визитов с 644 до 474 — это означает, что конвертирующий трафик вырос качественно. Из 21 цели 13 пришли из органического поиска, и этот показатель продолжает расти.</p>
-        <p>Контекстная реклама в июне не принесла конверсий — нет файла Директа для полного анализа. Июль — переходный месяц: аукцион дешевеет, спрос снижается. Это подходящий момент для технической настройки рекламных кампаний, теста новых объявлений и подготовки к осеннему пику продаж в сентябре–октябре.</p>
-      </div>
-
-      <div class="chart-card">
-        <div class="chart-title">Приоритизированный план — июль 2026</div>
-        <div class="table-wrap" style="margin-bottom:0">
-          <table>
-            <thead><tr><th>#</th><th>Действие</th><th>Обоснование</th><th>Срок</th></tr></thead>
-            <tbody>
-              <tr><td class="hlr">1</td><td><b>Диагностика Директа: почему 0 конверсий в июне</b></td><td>Метрика: 79 визитов из Директа, 0 целей. Варианты: бюджет иссяк, цели сломаны, посадочная</td><td><span class="tag tr">Сегодня</span></td></tr>
-              <tr><td class="hlr">2</td><td><b>Передать файл Директа за июнь для полного анализа</b></td><td>Без файла — нет данных о CPC, CTR, расходе. Анализ возможен только из Метрики</td><td><span class="tag tr">Сегодня</span></td></tr>
-              <tr><td class="hlr">3</td><td><b>Установить бюджет Директа ≥15 000 ₽/мес на июль</b></td><td>Май: 2456 ₽ за 6 дней. Июль — дешёвый аукцион (CPC снизится). Лучшее время накопить данные</td><td><span class="tag tr">3 дня</span></td></tr>
-              <tr><td class="hly">4</td><td><b>Запустить A/B тест объявлений поиска</b></td><td>CTR 3.21% в мае &lt;4% за 14+ дней — триггер. Июль дешевле — меньше цена ошибки</td><td><span class="tag ty">Неделя</span></td></tr>
-              <tr><td class="hly">5</td><td><b>Коллтрекинг — подключить до сентября</b></td><td>21 цель, 0 конв. из Директа в июне — разрыв. Звонки не считаются 4-й месяц</td><td><span class="tag ty">Неделя</span></td></tr>
-              <tr><td class="hly">6</td><td><b>SEO: страницы Toyota, Kia, Hyundai (ТОП-5 марок)</b></td><td>«Ева коврики тойота» упал в апреле, не восстановился. Создать страницы до осени</td><td><span class="tag ty">Неделя</span></td></tr>
-              <tr><td style="color:var(--green)">7</td><td><b>SEO: удержать ТОП-1 — обновить контент страниц</b></td><td>233 ключа в ТОП-10. Конкуренты видят рост и будут контратаковать в осенний пик</td><td><span class="tag tg">Июль</span></td></tr>
-              <tr><td style="color:var(--green)">8</td><td><b>Ретаргетинг РСЯ — подготовить к сентябрю</b></td><td>21 конверсия накоплена. Look-alike аудитория готова. Запуск за 3 нед до пика</td><td><span class="tag tg">Август</span></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- SPECIALIST SECTION -->
-      <div id="spec-section" style="display:none">
-        <div class="spec-card">
-          <div class="spec-badge">ТОЛЬКО ДЛЯ СПЕЦИАЛИСТА</div>
-          <div class="spec-title">⚡ Внутренний разбор — июнь 2026</div>
-
-          <div class="spec-section-head">🔴 Критические точки внимания</div>
-          <div class="spec-grid">
-            <div class="spec-item">
-              <div class="spec-item-label">Директ — факт из файла</div>
-              <div class="spec-item-val" style="color:var(--red)">0 ₽ / 6 дней</div>
-              <div class="spec-item-note">Файл подтверждён: только РСЯ, работала 01–05.06 + 1 клик 30.06. Показы 8 044, клики 44, расход 0 ₽. Поиск-кампания в июне не запускалась ни одного дня. Причина простая — бюджет закончился ещё в мае (2 456 ₽ за 02–07.05). Счёт не пополнен. Не проблема кампаний — проблема пополнения баланса.</div>
-            </div>
-            <div class="spec-item">
-              <div class="spec-item-label">Расхождение Метрика vs Директ</div>
-              <div class="spec-item-val" style="color:var(--yellow)">44 vs 79</div>
-              <div class="spec-item-note">Директ-файл: 44 клика. Метрика суммирует рекламные визиты как 79 (46+33+3). Строка «33 визита, 0 уникальных, bounce 0%, глубина 21.8, время 3:36» — это внутренний трафик (владелец/сотрудник), не реальные посетители. Реальный Директ-трафик = 44–49 визитов, совпадает с файлом.</div>
-            </div>
-            <div class="spec-item">
-              <div class="spec-item-label">Bounce прямые: 73.4%</div>
-              <div class="spec-item-val" style="color:var(--yellow)">158 визитов</div>
-              <div class="spec-item-note">158 прямых визитов, 73% отказов — аномально высоко. Вероятно, это брендовый трафик «savaks» который Метрика не атрибутирует к поиску (нет utm). Это не проблема сайта — это проблема атрибуции. Коллтрекинг и utm-разметка на всех каналах это исправят.</div>
-            </div>
-            <div class="spec-item">
-              <div class="spec-item-label">Ева премиум коврики</div>
-              <div class="spec-item-val" style="color:var(--yellow)">1→64</div>
-              <div class="spec-item-note">Был ТОП-1 в мае, в июне упал до 64. Вероятно конкурент (Wildberries или другой производитель) нарастил ссылочную или обновил страницу. Проверить: кто сейчас на ТОП-1 по этому запросу и чем он лучше нашей страницы. Это коммерчески важный запрос.</div>
-            </div>
-          </div>
-
-          <div class="spec-alert">
-            🚨 <b>Главный риск июля:</b> Осенний пик (сен–окт) начнётся через 10–12 недель. Директ 4 месяца без нормального бюджета и без стабильных конверсий. Если не настроить рекламу в июле (дешёвый аукцион), войдём в пик с необкатанными кампаниями и холодными объявлениями. SEO держит, но одного SEO мало в осенний сезон.
-          </div>
-
-          <div class="spec-section-head">🟢 Что работает — не трогать</div>
-          <div class="spec-good">
-            ✅ <b>SEO: 233 ключа в ТОП-10 — рост в 29× за 4 месяца.</b> Тренд устойчивый, ссылочное работает (87/154 ключей avg ≤10). Не менять стратегию, продолжать наращивать.<br><br>
-            ✅ <b>Метрика: 21 цель при 474 визитах (CR 4.4%)</b> — качество трафика выросло. Google CR 7.9%, Яндекс орг 5.9%. Органика полностью компенсирует провал рекламы.<br><br>
-            ✅ <b>Ссылочное Яндекс: 87/154 ключей avg ≤10.</b> Высокочастотные ключи (214, 194, 194 freq) теперь в avg 1.7–2.2. Это прямой трафиковый потенциал — ссылочное окупается.
-          </div>
-
-          <div class="spec-section-head">🟡 Аномалии — разобраться</div>
-          <ul class="spec-list">
-            <li>Google ссылочное показывает те же 87/154 ключей avg ≤10 что и Яндекс — это один и тот же трекинг файл или разные? Уточнить у клиента что отслеживается по Google.</li>
-            <li>«Ева коврики 43 киров» появился в росте (+35) — геозапрос Кирова. Непонятно зачем он в семантике СПб. Убрать из ссылочного.</li>
-            <li>«Ева коврики ниву легенд» (+43), «ева коврики джили атлас» (+50) — конкретные модели автомобилей. Хорошие сигналы для создания модельных страниц.</li>
-            <li>Цели в Метрике: 21 цель в июне при 0 конверсиях в Директе — это подтверждает гипотезу о коллтрекинге. Реальных заявок больше чем считает Директ.</li>
-            <li>QR-код: 5 визитов, 0 целей (май: 13 визитов). Тренд падает — проверить актуальность QR-материалов.</li>
-          </ul>
-
-          <div class="spec-section-head">📊 Собственные бенчмарки SAVAKS — 4 месяца</div>
-          <div class="table-wrap" style="margin-bottom:0">
-            <table>
-              <thead><tr><th>Метрика</th><th>Март</th><th>Апрель</th><th>Май</th><th>Июнь</th><th>Вывод</th></tr></thead>
-              <tbody>
-                <tr><td>CPA Поиск, ₽</td><td class="hlg">642</td><td class="hlr">8 107</td><td class="hly">1 228</td><td class="hlr">∞</td><td>Нестабилен — нет нормы</td></tr>
-                <tr><td>CR% Директ</td><td style="color:var(--text3)">1.20</td><td style="color:var(--text3)">0.97</td><td class="hlg">1.92</td><td class="hlr">0</td><td>Июнь — аномалия/пустой бюджет</td></tr>
-                <tr><td>CTR Поиск, %</td><td style="color:var(--text3)">2.76</td><td style="color:var(--text3)">н/д</td><td class="hly">3.21</td><td class="hlr">н/д</td><td>&lt; 4% (рынок 5–10%) — тест</td></tr>
-                <tr><td>CPC Поиск, ₽</td><td style="color:var(--text3)">48.78</td><td style="color:var(--text3)">54.77</td><td class="hly">62.97</td><td class="hlr">н/д</td><td>+29% за 3 мес — сезон</td></tr>
-                <tr><td>SEO ТОП-3</td><td style="color:var(--text3)">7</td><td style="color:var(--text3)">8</td><td class="hlg">44</td><td class="hlg">121</td><td>+1629% за 4 мес 🔥</td></tr>
-                <tr><td>Метрика цели/мес</td><td style="color:var(--text3)">4</td><td style="color:var(--text3)">—</td><td class="hlg">21</td><td class="hlg">21</td><td>Нормализация на уровне 21</td></tr>
-                <tr><td>Organic CR%</td><td style="color:var(--text3)">—</td><td style="color:var(--text3)">—</td><td class="hlg">12.1</td><td class="hlg">5.9–7.9</td><td>Органика конвертирует стабильно</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="spec-warn" style="margin-top:12px;margin-bottom:0">
-            ⚠️ <b>Нормы Директа:</b> 4 месяца данных с нестабильным бюджетом — нельзя считать нормой. CPA 642 ₽ (март) и 409 ₽ (май) — ориентиры, но не нормы. Реальные нормы SAVAKS сформируются к ноябрю 2026 при стабильном бюджете 15 000+ ₽/мес с октября.
-          </div>
-
-          <div class="spec-section-head">📋 Чеклист — что получить до конца июля</div>
-          <div class="table-wrap" style="margin-bottom:0">
-            <table>
-              <thead><tr><th>Что</th><th>Зачем</th><th>Статус</th></tr></thead>
-              <tbody>
-                <tr><td>Пополнить счёт Директа</td><td>Файл июня получен — счёт пуст с 07.05. РСЯ работала 6 дней из 30, Поиск — 0 дней</td><td><span class="tag tr">СРОЧНО</span></tr>
-                <tr><td>Коллтрекинг — подключить</td><td>4-й месяц без звонков. 21 цель в Метрике vs 0–6 в Директе — разрыв</td><td><span class="tag tr">СРОЧНО</span></td></tr>
-                <tr><td>Бюджет Директа июль ≥15 000 ₽</td><td>Июль дешёвый аукцион. Тест объявлений требует ≥30 кликов/кластер</td><td><span class="tag tr">СРОЧНО</span></td></tr>
-                <tr><td>Доступ к Метрике (редактор)</td><td>Настроить 3 цели воронки — клик/заявка/подтверждение</td><td><span class="tag ty">ВАЖНО</span></td></tr>
-                <tr><td>Topvisor — полный экспорт ежемесячно</td><td>1 866 ключей полный файл, не частичный. Нужен каждый месяц</td><td><span class="tag ty">ВАЖНО</span></td></tr>
-                <tr><td>ТОП-10 марок авто из заказов</td><td>Приоритизировать SEO-страницы и Директ семантику по маркам</td><td><span class="tag tgr">ПЛАН</span></td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /conclusions -->
-
-    <div class="footer">
-      <div>SAVAKS · Директ (Метрика) · Метрика 01–30.06 · SEO Яндекс 14–30.06 · Ссылочное 07.06–06.07</div>
-      <div>v6.0 · 06.07.2026 · Данные из загруженных файлов</div>
-    </div>
-
+  <div class="vcell v-good">
+    <div class="vlabel">Реклама вернулась</div>
+    <div class="vhead">8 конверсий · CPA 434 ₽</div>
+    <div class="vtext">Директ отработал после паузы: РСЯ дала 2 конверсии по 26 ₽, новая Товарная кампания — 6 конверсий за 2 дня работы.</div>
+  </div>
+  <div class="vcell v-warn">
+    <div class="vlabel">Требует внимания</div>
+    <div class="vhead">Google не растёт</div>
+    <div class="vtext">Ссылочное в Яндексе даёт 153 из 154 запросов в ТОП-10. В Google — только 1. Стратегию для Google нужно менять.</div>
   </div>
 </div>
 
+<!-- KPI -->
+<div class="kpis">
+  <div class="kpi">
+    <div class="kpi-l">Расход Директ</div>
+    <div class="kpi-v">3 473 ₽</div>
+    <div class="kpi-d up">↑ Июнь: 0 ₽</div>
+    <div class="kpi-ref">Реклама возобновлена</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-l">Конверсии</div>
+    <div class="kpi-v" style="color:var(--green)">8</div>
+    <div class="kpi-d up">↑ Рекорд за 5 мес.</div>
+    <div class="kpi-ref">Май: 6 · Июнь: 0</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-l">CPA общий</div>
+    <div class="kpi-v">434 ₽</div>
+    <div class="kpi-d up">↓ Близко к лучшему</div>
+    <div class="kpi-ref">Май: 409 ₽ · Апрель: 2 823 ₽</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-l">CR рекламы</div>
+    <div class="kpi-v">2.38%</div>
+    <div class="kpi-d up">↑ Май: 1.92%</div>
+    <div class="kpi-ref">Отрасль ~2% (Data Insight)</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-l">SEO ТОП-3</div>
+    <div class="kpi-v" style="color:var(--green)">190</div>
+    <div class="kpi-d up">↑ +57% к июню</div>
+    <div class="kpi-ref">Июнь: 121 · Март: 7</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-l">SEO ТОП-10</div>
+    <div class="kpi-v" style="color:var(--green)">397</div>
+    <div class="kpi-d up">↑ +70% к июню</div>
+    <div class="kpi-ref">Июнь: 233 · Март: 12</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-l">Ср. позиция Яндекс</div>
+    <div class="kpi-v">2.3</div>
+    <div class="kpi-d up">CTR 70%</div>
+    <div class="kpi-ref">Вебмастер: 16 457 кликов</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-l">Ссылочное Яндекс</div>
+    <div class="kpi-v" style="color:var(--green)">99%</div>
+    <div class="kpi-d up">153 из 154 в ТОП-10</div>
+    <div class="kpi-ref">Google: 1 из 154</div>
+  </div>
+</div>
+
+<!-- DIRECT -->
+<section id="direct">
+  <div class="sec-h"><h2>Контекстная реклама</h2><span class="sec-tag">Директ · июль</span></div>
+  <p class="sec-sub">Реклама возобновлена после июньской паузы. 30 июля запущена Товарная кампания — за два дня она принесла 6 из 8 конверсий месяца.</p>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Кампания</th><th>Показы</th><th>Клики</th><th>CTR</th><th>CPC</th><th>Расход</th><th>Конв.</th><th>CR</th><th>CPA</th><th>Оценка</th></tr></thead>
+      <tbody>
+        <tr class="rowgood"><td><b>РСЯ</b><br><span style="font-size:10.5px;color:var(--ink3)">оплата за конверсии · весь месяц</span></td><td class="num">16 765</td><td class="num">78</td><td class="num">0.47%</td><td class="num">0.65 ₽</td><td class="num">51 ₽</td><td class="num">2</td><td class="num">2.56%</td><td class="num" style="color:var(--green)">26 ₽</td><td><span class="p pg">Отлично</span></td></tr>
+        <tr><td><b>Товарная кампания</b><br><span style="font-size:10.5px;color:var(--ink3)">старт 30.07 · работала 2 дня</span></td><td class="num">18 264</td><td class="num">258</td><td class="num">1.41%</td><td class="num">13.26 ₽</td><td class="num">3 422 ₽</td><td class="num">6</td><td class="num">2.33%</td><td class="num">570 ₽</td><td><span class="p pb">Тест идёт</span></td></tr>
+        <tr class="rowsum"><td>Итого июль</td><td class="num">35 029</td><td class="num">336</td><td class="num">0.96%</td><td class="num">10.34 ₽</td><td class="num">3 473 ₽</td><td class="num">8</td><td class="num">2.38%</td><td class="num">434 ₽</td><td><span class="p pg">Норма</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note n-g"><span class="n-i">✓</span><div><b>Товарная кампания оправдала запуск.</b> За 30–31 июля: 258 кликов, 6 конверсий, CPA 570 ₽. Это только два дня работы — для полноценной оценки нужен весь август, но старт хороший. Товарные объявления показывают карточки товаров с ценой, что объясняет CTR 1.41% против 0.47% у РСЯ.</div></div>
+  <div class="note n-g"><span class="n-i">✓</span><div><b>РСЯ на оплате за конверсии работает как задумано.</b> 78 кликов за месяц стоили 51 ₽ — платим только за результат. CPA 26 ₽ несопоставим с обычной моделью оплаты, но и объём небольшой. Это правильный фоновый режим для канала, на который сейчас нет упора.</div></div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-t">Устройства</div>
+      <div class="card-s">Смартфоны дают 7 из 8 конверсий</div>
+      <div class="tbl" style="margin-bottom:0;box-shadow:none">
+        <table>
+          <thead><tr><th>Устройство</th><th>Клики</th><th>Расход</th><th>Конв.</th><th>CPA</th></tr></thead>
+          <tbody>
+            <tr class="rowgood"><td>Смартфоны</td><td class="num">233</td><td class="num">2 626 ₽</td><td class="num">7</td><td class="num" style="color:var(--green)">375 ₽</td></tr>
+            <tr><td>Десктопы</td><td class="num">100</td><td class="num">834 ₽</td><td class="num">1</td><td class="num" style="color:var(--red)">834 ₽</td></tr>
+            <tr><td>Планшеты</td><td class="num">3</td><td class="num">12 ₽</td><td class="num">0</td><td class="num">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note n-g" style="margin:11px 0 0"><span class="n-i">📱</span><div>Разворот против апреля, когда смартфоны давали 0 конверсий при 125 кликах. Мобильный трафик теперь основной источник заявок — CPA вдвое ниже десктопного.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-t">Аудитория</div>
+      <div class="card-s">Возраст 55+ — лучший сегмент по CPA</div>
+      <div class="tbl" style="margin-bottom:0;box-shadow:none">
+        <table>
+          <thead><tr><th>Возраст</th><th>Клики</th><th>Конв.</th><th>CR</th><th>CPA</th></tr></thead>
+          <tbody>
+            <tr class="rowgood"><td>Старше 55</td><td class="num">97</td><td class="num">4</td><td class="num">4.12%</td><td class="num" style="color:var(--green)">180 ₽</td></tr>
+            <tr><td>35–44 года</td><td class="num">71</td><td class="num">2</td><td class="num">2.82%</td><td class="num">369 ₽</td></tr>
+            <tr><td>45–54 года</td><td class="num">78</td><td class="num">1</td><td class="num">1.28%</td><td class="num">687 ₽</td></tr>
+            <tr><td>25–34 года</td><td class="num">52</td><td class="num">0</td><td class="num">—</td><td class="num">—</td></tr>
+            <tr><td>18–24 года</td><td class="num">24</td><td class="num">0</td><td class="num">—</td><td class="num">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note n-b" style="margin:11px 0 0"><span class="n-i">👥</span><div>Мужчины: 235 кликов, 6 конверсий, CPA 374 ₽. Женщины: 84 клика, 2 конверсии, CPA 506 ₽. Оба пола конвертируют — резать женскую аудиторию рано.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-t">Динамика кликов и конверсий по дням</div>
+    <div class="card-s">Виден момент запуска Товарной кампании 30 июля</div>
+    <div class="chart-h"><canvas id="chDaily"></canvas></div>
+  </div>
+</section>
+
+<!-- SEO -->
+<section id="seo">
+  <div class="sec-h"><h2>Поисковая оптимизация</h2><span class="sec-tag">SEO · июль</span></div>
+  <p class="sec-sub">Пятый месяц непрерывного роста. Половина отслеживаемых запросов теперь имеет позицию, из них 397 — в первой десятке Яндекса.</p>
+
+  <div class="card">
+    <div class="card-t">Распределение позиций · срез 31.07.2026</div>
+    <div class="card-s">1 866 отслеживаемых запросов · Topvisor · регион Санкт-Петербург</div>
+    <div class="sb-grid">
+      <div class="sb"><div class="sb-l">ТОП-3</div><div class="sb-v" style="color:var(--green)">190</div><div class="sb-d up">↑ +69 к июню</div></div>
+      <div class="sb"><div class="sb-l">ТОП-10</div><div class="sb-v" style="color:var(--green)">397</div><div class="sb-d up">↑ +164</div></div>
+      <div class="sb"><div class="sb-l">ТОП-30</div><div class="sb-v" style="color:var(--green)">608</div><div class="sb-d up">↑ +198</div></div>
+      <div class="sb"><div class="sb-l">31–100</div><div class="sb-v" style="color:var(--amber)">366</div><div class="sb-d flat">резерв роста</div></div>
+      <div class="sb"><div class="sb-l">Вне ТОП-100</div><div class="sb-v" style="color:var(--ink3)">892</div><div class="sb-d up">↓ −397</div></div>
+    </div>
+    <div class="note n-g" style="margin:14px 0 0"><span class="n-i">📈</span><div><b>Половина семантики видна в поиске.</b> В марте позицию имели 247 запросов, сейчас — 974. Запросы массово переходят из зоны «вне ТОП-100» в рабочие позиции: за июль 397 запросов покинули невидимую зону.</div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-t">Модельные запросы — прорыв июля</div>
+      <div class="card-s">Страницы под конкретные марки начали ранжироваться</div>
+      <div class="brow"><div class="blab">эва коврики уаз патриот</div><div class="btrk"><div class="bfil" style="width:100%;background:var(--green)"></div></div><div class="bval up">99 → 7</div></div>
+      <div class="brow"><div class="blab">эва коврики ваз 2115</div><div class="btrk"><div class="bfil" style="width:97%;background:var(--green)"></div></div><div class="bval up">97 → 8</div></div>
+      <div class="brow"><div class="blab">ворсовые 3d коврики в салон</div><div class="btrk"><div class="bfil" style="width:91%;background:var(--green)"></div></div><div class="bval up">89 → 5</div></div>
+      <div class="brow"><div class="blab">eva коврики cx 5</div><div class="btrk"><div class="bfil" style="width:91%;background:var(--green)"></div></div><div class="bval up">95 → 11</div></div>
+      <div class="brow"><div class="blab">эва коврик листовой</div><div class="btrk"><div class="bfil" style="width:89%;background:var(--green)"></div></div><div class="bval up">90 → 8</div></div>
+      <div class="brow"><div class="blab">коврики ева ларгус</div><div class="btrk"><div class="bfil" style="width:88%;background:var(--brand)"></div></div><div class="bval up">94 → 13</div></div>
+      <div class="brow"><div class="blab">ева коврики гранта</div><div class="btrk"><div class="bfil" style="width:86%;background:var(--brand)"></div></div><div class="bval up">91 → 12</div></div>
+      <div class="brow"><div class="blab">ева коврик солярис</div><div class="btrk"><div class="bfil" style="width:79%;background:var(--brand)"></div></div><div class="bval up">83 → 10</div></div>
+      <div class="note n-g" style="margin:12px 0 0"><span class="n-i">🚗</span><div>Работа по маркам авто, начатая весной, дала результат. Лада, УАЗ, Hyundai, Mazda — запросы вышли в ТОП-15 с позиций около 90.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-t">Запросы в позиции 1</div>
+      <div class="card-s">Выборка коммерческих без брендовых</div>
+      <div class="tbl" style="margin-bottom:0;box-shadow:none">
+        <table>
+          <thead><tr><th>Запрос</th><th>31.07</th><th>14.07</th></tr></thead>
+          <tbody>
+            <tr class="rowgood"><td>eva коврики hyundai</td><td class="num">1</td><td class="num" style="color:var(--ink3)">9</td></tr>
+            <tr class="rowgood"><td>eva коврики honda</td><td class="num">1</td><td class="num" style="color:var(--ink3)">6</td></tr>
+            <tr class="rowgood"><td>ева коврики купить спб с бортами</td><td class="num">1</td><td class="num" style="color:var(--ink3)">12</td></tr>
+            <tr class="rowgood"><td>коврики салон eva купить</td><td class="num">1</td><td class="num" style="color:var(--ink3)">6</td></tr>
+            <tr><td>коврик eva санкт петербург</td><td class="num">1</td><td class="num" style="color:var(--ink3)">1</td></tr>
+            <tr><td>ева коврики для авто спб</td><td class="num">1</td><td class="num" style="color:var(--ink3)">1</td></tr>
+            <tr><td>производство ковриков ева</td><td class="num">1</td><td class="num" style="color:var(--ink3)">1</td></tr>
+            <tr><td>ева коврики на заказ</td><td class="num">1</td><td class="num" style="color:var(--ink3)">1</td></tr>
+            <tr><td>ева коврики изготовление</td><td class="num">1</td><td class="num" style="color:var(--ink3)">1</td></tr>
+            <tr><td>заказать коврики ева</td><td class="num">1</td><td class="num" style="color:var(--ink3)">1</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-t">Падения позиций — что проверить</div>
+      <div class="card-s">Запросы, ушедшие из рабочей зоны за июль</div>
+      <div class="tbl" style="margin-bottom:0;box-shadow:none">
+        <table>
+          <thead><tr><th>Запрос</th><th>31.07</th><th>14.07</th><th>Δ</th></tr></thead>
+          <tbody>
+            <tr class="rowbad"><td>коврики eva из термоэластопласта</td><td class="num">99</td><td class="num">5</td><td class="num down">−94</td></tr>
+            <tr class="rowbad"><td>шторки солнцезащитные задних дверей</td><td class="num">88</td><td class="num">10</td><td class="num down">−78</td></tr>
+            <tr class="rowbad"><td>коврики eva hyundai tucson</td><td class="num">96</td><td class="num">20</td><td class="num down">−76</td></tr>
+            <tr><td>эва коврики ситроен с4</td><td class="num">91</td><td class="num">16</td><td class="num down">−75</td></tr>
+            <tr><td>органайзеры в багажник спб</td><td class="num">96</td><td class="num">22</td><td class="num down">−74</td></tr>
+            <tr><td>коврики eva для mitsubishi</td><td class="num">75</td><td class="num">7</td><td class="num down">−68</td></tr>
+            <tr><td>eva коврики митсубиси</td><td class="num">64</td><td class="num">2</td><td class="num down">−62</td></tr>
+            <tr><td>ева коврики липучки</td><td class="num">63</td><td class="num">4</td><td class="num down">−59</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note n-a" style="margin:11px 0 0"><span class="n-i">!</span><div>Падения затронули два кластера: Mitsubishi (все вариации) и солнцезащитные шторки. Похоже на конкурентную ротацию, а не на технические проблемы — соседние запросы в тех же категориях остались на местах.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-t">Яндекс.Вебмастер — весь домен</div>
+      <div class="card-s">Июль 2026 · включая карточки на Яндекс.Маркете</div>
+      <div class="sb-grid" style="grid-template-columns:repeat(2,1fr);margin-bottom:13px">
+        <div class="sb"><div class="sb-l">Показы</div><div class="sb-v">23 517</div></div>
+        <div class="sb"><div class="sb-l">Клики</div><div class="sb-v" style="color:var(--green)">16 457</div></div>
+        <div class="sb"><div class="sb-l">CTR</div><div class="sb-v" style="color:var(--green)">70%</div></div>
+        <div class="sb"><div class="sb-l">Ср. позиция</div><div class="sb-v" style="color:var(--brand)">2.3</div></div>
+      </div>
+      <div class="tbl" style="margin-bottom:0;box-shadow:none">
+        <table>
+          <thead><tr><th>Зона позиций</th><th>Показы</th><th>Клики</th><th>CTR</th></tr></thead>
+          <tbody>
+            <tr class="rowgood"><td>Позиция 1</td><td class="num">15 123</td><td class="num">12 408</td><td class="num">82%</td></tr>
+            <tr><td>Позиции 2–3</td><td class="num">4 937</td><td class="num">3 025</td><td class="num">61%</td></tr>
+            <tr><td>Позиции 4–10</td><td class="num">2 598</td><td class="num">811</td><td class="num">31%</td></tr>
+            <tr><td>Позиции 11–50</td><td class="num">859</td><td class="num">213</td><td class="num">25%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="src">Вебмастер учитывает клики по всему домену savaks.ru, включая карточки товаров на Яндекс.Маркете. Поэтому цифры выше, чем визиты на сайт в Метрике.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-t">Ссылочное продвижение · 02–31.07</div>
+    <div class="card-s">154 запроса в работе по каждой поисковой системе</div>
+    <div class="g2">
+      <div>
+        <div style="display:flex;align-items:baseline;gap:9px;margin-bottom:11px">
+          <span style="font-family:'Unbounded';font-size:30px;font-weight:700;color:var(--green)">153</span>
+          <span style="font-size:13px;color:var(--ink2);font-weight:600">из 154 запросов Яндекса в ТОП-10</span>
+        </div>
+        <div class="brow"><div class="blab">коврики eva <span style="color:var(--ink3)">(частота 736)</span></div><div class="btrk"><div class="bfil" style="width:100%;background:var(--green)"></div></div><div class="bval up">поз. 1</div></div>
+        <div class="brow"><div class="blab">премиум коврики <span style="color:var(--ink3)">(66)</span></div><div class="btrk"><div class="bfil" style="width:100%;background:var(--green)"></div></div><div class="bval up">поз. 1</div></div>
+        <div class="brow"><div class="blab">коврики eva в автомобиль <span style="color:var(--ink3)">(32)</span></div><div class="btrk"><div class="bfil" style="width:100%;background:var(--green)"></div></div><div class="bval up">поз. 1</div></div>
+        <div class="brow"><div class="blab">эва коврики для автомобилей <span style="color:var(--ink3)">(19)</span></div><div class="btrk"><div class="bfil" style="width:100%;background:var(--green)"></div></div><div class="bval up">поз. 1</div></div>
+        <div class="note n-g" style="margin:11px 0 0"><span class="n-i">✓</span><div>Ссылочное в Яндексе окупается полностью. Самый частотный запрос «коврики eva» (736 показов/мес) стоит на первой позиции.</div></div>
+      </div>
+      <div>
+        <div style="display:flex;align-items:baseline;gap:9px;margin-bottom:11px">
+          <span style="font-family:'Unbounded';font-size:30px;font-weight:700;color:var(--red)">1</span>
+          <span style="font-size:13px;color:var(--ink2);font-weight:600">из 154 запросов Google в ТОП-10</span>
+        </div>
+        <div class="note n-r" style="margin-bottom:11px"><span class="n-i">!</span><div><b>Google не реагирует на текущее ссылочное.</b> Третий месяц подряд результат близок к нулю: в июне был 0, сейчас 1 запрос («про eva коврики», позиция 10). При этом Яндекс по тем же ключам даёт 99%.</div></div>
+        <div style="font-size:12.5px;color:var(--ink2);line-height:1.7">
+          <b style="color:var(--ink)">Что это значит:</b> доноры, которые работают для Яндекса, не имеют веса в Google. Продолжать платить за них по Google-тарифу нецелесообразно — предложение по замене подхода в блоке «План действий».
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DYNAMICS -->
+<section id="dyn">
+  <div class="sec-h"><h2>Динамика по месяцам</h2><span class="sec-tag">Март — Июль 2026</span></div>
+  <p class="sec-sub">Пять месяцев накопленных данных. Реклама шла с перерывами, поэтому её показатели сравнимы только между активными месяцами. SEO растёт непрерывно.</p>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Показатель</th><th>Март</th><th>Апрель</th><th>Май</th><th>Июнь</th><th>Июль</th><th>Комментарий</th></tr></thead>
+      <tbody>
+        <tr><td><b>Расход Директ</b></td><td class="num">4 883 ₽</td><td class="num">8 470 ₽</td><td class="num">2 456 ₽</td><td class="num" style="color:var(--ink3)">0 ₽</td><td class="num">3 473 ₽</td><td>Июнь — пауза</td></tr>
+        <tr><td><b>Клики</b></td><td class="num">501</td><td class="num">310</td><td class="num">312</td><td class="num" style="color:var(--ink3)">44</td><td class="num">336</td><td>Вернулись к норме</td></tr>
+        <tr><td><b>Конверсии</b></td><td class="num">6</td><td class="num">3</td><td class="num">6</td><td class="num" style="color:var(--ink3)">0</td><td class="num" style="color:var(--green)">8</td><td>Рекорд июля</td></tr>
+        <tr><td><b>CPA</b></td><td class="num">814 ₽</td><td class="num" style="color:var(--red)">2 823 ₽</td><td class="num" style="color:var(--green)">409 ₽</td><td class="num" style="color:var(--ink3)">—</td><td class="num" style="color:var(--green)">434 ₽</td><td>Стабилизировался</td></tr>
+        <tr><td><b>CR</b></td><td class="num">1.20%</td><td class="num">0.97%</td><td class="num">1.92%</td><td class="num" style="color:var(--ink3)">0%</td><td class="num" style="color:var(--green)">2.38%</td><td>Выше отрасли ~2%</td></tr>
+        <tr class="rowgood"><td><b>SEO ТОП-3</b></td><td class="num">7</td><td class="num">8</td><td class="num">44</td><td class="num">121</td><td class="num" style="color:var(--green)">190</td><td>×27 за 5 месяцев</td></tr>
+        <tr class="rowgood"><td><b>SEO ТОП-10</b></td><td class="num">12</td><td class="num">8</td><td class="num">104</td><td class="num">233</td><td class="num" style="color:var(--green)">397</td><td>×33 за 5 месяцев</td></tr>
+        <tr class="rowgood"><td><b>SEO ТОП-30</b></td><td class="num">48</td><td class="num">71</td><td class="num">237</td><td class="num">410</td><td class="num" style="color:var(--green)">608</td><td>Непрерывный рост</td></tr>
+        <tr><td><b>Вне ТОП-100</b></td><td class="num">1 619</td><td class="num">1 468</td><td class="num">1 229</td><td class="num">1 289</td><td class="num" style="color:var(--green)">892</td><td>↓ 45% с марта</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="src">Источники: выгрузки Яндекс.Директ, Topvisor (1 866 запросов, СПб), Яндекс.Метрика, Яндекс.Вебмастер.</div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-t">Рост SEO-позиций</div>
+      <div class="card-s">Количество запросов в каждой зоне по месяцам</div>
+      <div class="chart-h"><canvas id="chSeo"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-t">Реклама: расход и конверсии</div>
+      <div class="card-s">Июнь — месяц без рекламы</div>
+      <div class="chart-h"><canvas id="chDir"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- SEASON -->
+<section id="season">
+  <div class="sec-h"><h2>Сезонность рынка</h2><span class="sec-tag">Прогноз</span></div>
+  <p class="sec-sub">Спрос на автоаксессуары следует за автомобильным сезоном. Август — последний спокойный месяц перед осенней волной.</p>
+
+  <div class="card">
+    <div class="card-t">Сезонный индекс спроса</div>
+    <div class="card-s">Автоковрики и аксессуары, Россия · по данным Яндекс.Вордстат и динамики аукциона</div>
+    <div class="seas" id="seasGrid"></div>
+    <div class="leg">
+      <span><i class="sw lo"></i>Низкий</span>
+      <span><i class="sw md"></i>Средний</span>
+      <span><i class="sw hi"></i>Высокий</span>
+      <span><i class="sw pk"></i>Пик</span>
+      <span><i class="sw" style="border:2px solid var(--brand)"></i>Сейчас</span>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-t">Стоимость клика в поиске</div>
+      <div class="card-s">Факт март–май · прогноз до октября</div>
+      <div class="chart-h" style="height:200px"><canvas id="chCpc"></canvas></div>
+      <div class="note n-a" style="margin:11px 0 0"><span class="n-i">📅</span><div>Сентябрь–октябрь — вторая волна сезона: смена резины, подготовка к зиме. Аукцион подорожает на 40–60%. Кампании нужно обкатать в августе, пока клики дешевле.</div></div>
+    </div>
+    <div class="card">
+      <div class="card-t">Что делаем в августе</div>
+      <div class="card-s">Подготовка к осеннему пику</div>
+      <div style="font-size:13px;color:var(--ink2);line-height:1.9">
+        <div style="display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)"><b style="color:var(--brand);flex-shrink:0">01</b><div>Даём Товарной кампании отработать полный месяц — накопить статистику для оценки</div></div>
+        <div style="display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)"><b style="color:var(--brand);flex-shrink:0">02</b><div>Восстанавливаем упавшие кластеры: Mitsubishi и солнцезащитные шторки</div></div>
+        <div style="display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)"><b style="color:var(--brand);flex-shrink:0">03</b><div>Меняем подход к ссылочному в Google — текущий не даёт результата</div></div>
+        <div style="display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)"><b style="color:var(--brand);flex-shrink:0">04</b><div>Подключаем коллтрекинг до начала сезона, чтобы видеть звонки</div></div>
+        <div style="display:flex;gap:10px;padding:9px 0"><b style="color:var(--brand);flex-shrink:0">05</b><div>Готовим бюджет на сентябрь с учётом подорожания аукциона</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLAN -->
+<section id="plan">
+  <div class="sec-h"><h2>Итоги и план</h2><span class="sec-tag">Август 2026</span></div>
+  <p class="sec-sub">Что получилось в июле и на чём сосредоточиться дальше.</p>
+
+  <div class="summary">
+    <h3>Итоги июля</h3>
+    <p>Июль стал первым месяцем, где реклама и органика сработали одновременно. Контекст принёс 8 конверсий при стоимости 434 ₽ за заявку — это второй результат за всё время наблюдений и лучший по количеству. Запущенная 30 июля Товарная кампания дала 6 заявок всего за два дня работы, что говорит о хорошем потенциале формата для товаров с наглядной ценой.</p>
+    <p>Поисковая оптимизация продолжила рост пятый месяц подряд: 397 запросов в первой десятке Яндекса против 12 в марте. Средняя позиция сайта по данным Вебмастера — 2.3, а CTR по позиции 1 достигает 82%. Особенно заметен прогресс по запросам с марками автомобилей: страницы под УАЗ, Ладу, Hyundai и Mazda поднялись с девятого десятка в ТОП-15.</p>
+    <p>Ссылочное продвижение в Яндексе показывает почти стопроцентную эффективность — 153 запроса из 154 находятся в ТОП-10, включая самый частотный «коврики eva». В Google тот же набор ссылок результата не даёт, поэтому по этой системе стратегию будем менять.</p>
+    <p>В августе основное внимание — накопление статистики по Товарной кампании и подготовка к осеннему сезону, который начнётся в сентябре. Спрос на автоаксессуары вырастет, а вместе с ним и стоимость рекламы, поэтому кампании стоит настроить заранее.</p>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th style="width:34px">#</th><th>Действие</th><th>Основание</th><th>Срок</th></tr></thead>
+      <tbody>
+        <tr><td class="num" style="color:var(--red)">1</td><td><b>Не менять настройки Товарной кампании</b></td><td>Работала 2 дня, 6 конверсий. Для вывода нужно минимум 30 кликов на группу и 2–3 недели обучения алгоритма</td><td><span class="p pr">Весь август</span></td></tr>
+        <tr><td class="num" style="color:var(--red)">2</td><td><b>Заложить бюджет на август ≥ 15 000 ₽</b></td><td>Июль: 3 473 ₽ за 2 дня активной работы Товарной. При полном месяце расход будет кратно выше</td><td><span class="p pr">До 07.08</span></td></tr>
+        <tr><td class="num" style="color:var(--red)">3</td><td><b>Подключить коллтрекинг</b></td><td>Пятый месяц без данных по звонкам. Перед сезоном это критично: часть заявок не учитывается</td><td><span class="p pr">До 15.08</span></td></tr>
+        <tr><td class="num" style="color:var(--amber)">4</td><td><b>Проверить кластер Mitsubishi</b></td><td>Все вариации упали: «коврики eva для mitsubishi» 7→75, «eva коврики митсубиси» 2→64</td><td><span class="p pa">Неделя</span></td></tr>
+        <tr><td class="num" style="color:var(--amber)">5</td><td><b>Восстановить страницу солнцезащитных шторок</b></td><td>«Шторки задних дверей» 10→88, «шторки для автомобиля» 22→64. Целая категория ушла из видимости</td><td><span class="p pa">Неделя</span></td></tr>
+        <tr><td class="num" style="color:var(--amber)">6</td><td><b>Пересобрать ссылочное для Google</b></td><td>3 месяца подряд 0–1 запрос в ТОП-10 из 154. Текущие доноры не работают для Google</td><td><span class="p pa">Август</span></td></tr>
+        <tr><td class="num" style="color:var(--green)">7</td><td><b>Дожать 366 запросов из зоны 31–100</b></td><td>Это ближайший резерв роста. При текущей динамике часть перейдёт в ТОП-30 естественно</td><td><span class="p pg">Август</span></td></tr>
+        <tr><td class="num" style="color:var(--green)">8</td><td><b>Расширить страницы по маркам авто</b></td><td>УАЗ 99→7, ВАЗ 97→8, Ларгус 94→13. Формат работает — добавить оставшиеся ходовые марки</td><td><span class="p pg">Август</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SPECIALIST -->
+  <div id="spec">
+    <div class="spec-card">
+      <div class="spec-badge">ТОЛЬКО ДЛЯ СПЕЦИАЛИСТА</div>
+      <div class="spec-t">Внутренний разбор — июль 2026</div>
+
+      <div class="spec-h">Критические точки</div>
+      <div class="sgrid">
+        <div class="sitem">
+          <div class="sitem-l">Товарная кампания — мало данных</div>
+          <div class="sitem-v" style="color:var(--amber)">2 дня · 258 кл</div>
+          <div class="sitem-n">6 конверсий за 30–31.07, CPA 570 ₽. Но это 2 дня и один всплеск: 30.07 — 208 кликов и 2 904 ₽ за сутки. Возможен разгон алгоритма на старте, который потом выровняется. Порог вывода (30 кликов на кластер) формально пройден, но по времени — нет. Не трогать до конца августа, иначе обучение сбросится.</div>
+        </div>
+        <div class="sitem">
+          <div class="sitem-l">Десктоп — CPA вдвое хуже</div>
+          <div class="sitem-v" style="color:var(--red)">834 ₽</div>
+          <div class="sitem-n">100 кликов, 834 ₽, 1 конверсия против смартфонов: 233 клика, 7 конверсий, CPA 375 ₽. Пока не корректировать — в мае была обратная картина (десктоп 4 конв, смартфон 2). Нужен третий месяц подряд с тем же паттерном, тогда ставить −20% на десктоп.</div>
+        </div>
+        <div class="sitem">
+          <div class="sitem-l">Google ссылочное — деньги впустую</div>
+          <div class="sitem-v" style="color:var(--red)">1 / 154</div>
+          <div class="sitem-n">Май: 0, июнь: 0, июль: 1. Три месяца одинаковых ссылок без движения. Яндекс по тому же списку — 153/154. Вывод однозначен: доноры тематически подходят Яндексу, но не проходят по критериям Google (вероятно, отсутствие трафика у доноров, отсутствие индексации в Google, либо PBN-признаки).</div>
+        </div>
+        <div class="sitem">
+          <div class="sitem-l">Кластер Mitsubishi + шторки</div>
+          <div class="sitem-v" style="color:var(--amber)">−62…−94</div>
+          <div class="sitem-n">Упали синхронно все вариации двух категорий. Соседние кластеры (Hyundai, Honda) наоборот выросли в ТОП-1. Это не техническая проблема сайта — иначе просели бы все. Проверить: не удалялся ли контент с этих страниц, не менялись ли title/H1, кто занял позиции.</div>
+        </div>
+      </div>
+
+      <div class="spec-h">Наблюдения по данным</div>
+      <ul class="slist">
+        <li><b>РСЯ на оплате за конверсии:</b> 78 кликов, 51 ₽, 2 конверсии. Средний чек за конверсию 25.5 ₽ — это ставка, которую выставил алгоритм. Объём мал, потому что при этой модели Яндекс показывает только максимально вероятным покупателям. Чтобы увеличить объём — поднять целевую цену конверсии, но тогда вырастет и CPA.</li>
+        <li><b>Возраст 55+ даёт 4 из 8 конверсий</b> при CPA 180 ₽ — вдвое лучше среднего. Это устойчивый паттерн: в мае этот сегмент тоже конвертировал. Кандидат на повышающую корректировку +15% после августа.</li>
+        <li><b>25–34 и 18–24 — 76 кликов, 0 конверсий, ~1 028 ₽.</b> Пока меньше порога 30 кликов на сегмент по отдельности, но суммарно уже показательно. Если в августе картина повторится — понижающая корректировка.</li>
+        <li><b>Отказы 35.71%</b> против 27.11% в мае. Рост связан с Товарной кампанией: широкий охват даёт более холодный трафик. Само по себе не проблема, следить за трендом.</li>
+        <li><b>Расхождение Вебмастер и Метрика</b> остаётся структурным: 16 457 кликов по домену против сотен визитов на сайт. Вебмастер считает Яндекс.Маркет. Для оценки SEO-трафика на сайт использовать только Метрику.</li>
+        <li><b>974 запроса с позицией из 1 866</b> — впервые больше половины. Резерв в 892 запроса вне ТОП-100 частично состоит из нерелевантных ключей (конкуренты, другие города, грузовая техника). Стоит почистить семантику, чтобы метрики отражали реальную картину.</li>
+      </ul>
+
+      <div class="spec-h">Что работает — не трогать</div>
+      <div class="note n-g" style="background:#fff;border-color:#a7f3d0">
+        <span class="n-i">✓</span>
+        <div>
+          <b>SEO-стратегия по маркам авто.</b> Пять месяцев подряд даёт прирост. УАЗ Патриот 99→7, ВАЗ 2115 97→8, Ларгус 94→13 — все с одной механики. Формат подтверждён, масштабировать на оставшиеся марки.<br><br>
+          <b>Ссылочное в Яндексе.</b> 153/154 в ТОП-10. «Коврики eva» с частотой 736 на первой позиции. Список запросов пересматривали в июне — результат виден. Не менять.<br><br>
+          <b>РСЯ с оплатой за конверсии.</b> Фоновый режим, платим только за результат. При отсутствии упора на канал это оптимально.
+        </div>
+      </div>
+
+      <div class="spec-h">Пороги и бенчмарки SAVAKS</div>
+      <div class="tbl" style="margin-bottom:0">
+        <table>
+          <thead><tr><th>Метрика</th><th>Лучший</th><th>Худший</th><th>Июль</th><th>Рабочий ориентир</th></tr></thead>
+          <tbody>
+            <tr><td>CPA общий</td><td class="num" style="color:var(--green)">409 ₽ (май)</td><td class="num" style="color:var(--red)">2 823 ₽ (апр)</td><td class="num">434 ₽</td><td>До 800 ₽ — норма</td></tr>
+            <tr><td>CR рекламы</td><td class="num" style="color:var(--green)">2.38% (июль)</td><td class="num">0.97% (апр)</td><td class="num">2.38%</td><td>≥2% (отрасль)</td></tr>
+            <tr><td>CPC Товарная</td><td class="num">—</td><td class="num">—</td><td class="num">13.26 ₽</td><td>Первое измерение</td></tr>
+            <tr><td>CPC Поиск</td><td class="num" style="color:var(--green)">48.78 ₽ (мар)</td><td class="num" style="color:var(--red)">62.97 ₽ (май)</td><td class="num">не запускался</td><td>Рынок ~47 ₽</td></tr>
+            <tr><td>Отказы</td><td class="num" style="color:var(--green)">27.11% (май)</td><td class="num">35.71% (июль)</td><td class="num">35.71%</td><td>До 40% — норма</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note n-a" style="margin-top:12px">
+        <span class="n-i">!</span>
+        <div><b>Нормы всё ещё предварительные.</b> Пять месяцев, из них один без рекламы и два с прерванным бюджетом. Устойчивые внутренние нормы можно будет зафиксировать после трёх месяцев непрерывной работы с полным бюджетом — реалистично к ноябрю.</div>
+      </div>
+
+      <div class="spec-h">Запросить у клиента</div>
+      <div class="tbl" style="margin-bottom:0">
+        <table>
+          <thead><tr><th>Что</th><th>Зачем</th><th>Приоритет</th></tr></thead>
+          <tbody>
+            <tr><td>Коллтрекинг</td><td>Пятый месяц запроса. Перед сезоном без него не оценить реальный CPA</td><td><span class="p pr">Срочно</span></td></tr>
+            <tr><td>Бюджет на август и сентябрь</td><td>Товарная кампания при полном месяце потратит существенно больше июльских 3 473 ₽</td><td><span class="p pr">Срочно</span></td></tr>
+            <tr><td>Что менялось на страницах Mitsubishi и шторок</td><td>Синхронное падение двух кластеров — проверить правки контента</td><td><span class="p pa">Важно</span></td></tr>
+            <tr><td>Цели воронки в Метрике</td><td>Клик → заявка → подтверждение. Сейчас одна общая цель</td><td><span class="p pa">Важно</span></td></tr>
+            <tr><td>ТОП-10 марок из реальных заказов</td><td>Приоритизировать создание страниц по данным продаж, а не по частотности</td><td><span class="p pn">План</span></td></tr>
+            <tr><td>Решение по ссылочному в Google</td><td>Менять доноров или остановить оплату по Google до пересмотра</td><td><span class="p pa">Важно</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div>SAVAKS · Директ 01–31.07.2026 · SEO Topvisor 14–31.07 · Вебмастер июль · Ссылочное 02–31.07</div>
+  <div>v7.0 · 05.08.2026</div>
+</footer>
+
+</div>
+</div>
+
 <script>
-const ROLES={"savaks2026":"client","savaks_admin":"specialist"};
+const ROLES={savaks2026:'client',savaks_admin:'specialist'};
 function login(){
-  const v=document.getElementById('gateInput').value;
-  const role=ROLES[v];
-  if(role){
+  const v=document.getElementById('gi').value.trim();
+  const r=ROLES[v];
+  if(r){
     document.getElementById('gate').style.display='none';
     document.getElementById('report').style.display='block';
-    sessionStorage.setItem('sv_role',role);
-    applyRole(role);initCharts();buildSeason();
-  } else {
-    const e=document.getElementById('gateErr');e.classList.add('show');
-    document.getElementById('gateInput').value='';
-    setTimeout(()=>e.classList.remove('show'),2000);
+    try{sessionStorage.setItem('sv_role',r)}catch(e){}
+    apply(r);boot();
+  }else{
+    const e=document.getElementById('ge');e.classList.add('show');
+    document.getElementById('gi').value='';
+    setTimeout(()=>e.classList.remove('show'),2200);
   }
 }
-document.getElementById('gateInput').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
-function applyRole(role){
-  if(role==='specialist'){
-    document.getElementById('spec-section').style.display='block';
-    document.getElementById('spec-badge-topbar').style.display='inline-block';
+document.getElementById('gi').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
+function apply(r){
+  if(r==='specialist'){
+    document.getElementById('spec').style.display='block';
+    document.getElementById('specBadge').style.display='inline-block';
   }
 }
-const saved=sessionStorage.getItem('sv_role');
-if(saved){
+let sr=null;try{sr=sessionStorage.getItem('sv_role')}catch(e){}
+if(sr){
   document.getElementById('gate').style.display='none';
   document.getElementById('report').style.display='block';
-  applyRole(saved);setTimeout(()=>{initCharts();buildSeason();},100);
+  apply(sr);setTimeout(boot,60);
 }
-function scrollTo2(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
-const seasons=[
-  {m:'Янв',cls:'s-low',lv:'Низкий'},{m:'Фев',cls:'s-low',lv:'Низкий'},
-  {m:'Мар',cls:'s-med',lv:'Средний'},{m:'Апр',cls:'s-high',lv:'Высокий'},
-  {m:'Май',cls:'s-peak',lv:'Пик'},{m:'Июн',cls:'s-peak',lv:'Пик'},
-  {m:'Июл',cls:'s-high s-current',lv:'Высокий'},{m:'Авг',cls:'s-high',lv:'Высокий'},
-  {m:'Сен',cls:'s-peak',lv:'Пик'},{m:'Окт',cls:'s-high',lv:'Высокий'},
-  {m:'Ноя',cls:'s-med',lv:'Средний'},{m:'Дек',cls:'s-low',lv:'Низкий'},
-];
-function buildSeason(){
-  const g=document.getElementById('seasonGrid');if(!g)return;
-  g.innerHTML=seasons.map(s=>`<div class="season-cell ${s.cls}"><span class="s-month">${s.m}</span><span class="s-level">${s.lv}</span></div>`).join('');
+
+// nav
+document.querySelectorAll('.tb-link').forEach(l=>{
+  l.addEventListener('click',()=>{
+    const el=document.getElementById(l.dataset.s);
+    if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+});
+const secs=['top','direct','seo','dyn','season','plan'];
+window.addEventListener('scroll',()=>{
+  let cur=secs[0];
+  secs.forEach(id=>{const el=document.getElementById(id);
+    if(el&&el.getBoundingClientRect().top<=140)cur=id;});
+  document.querySelectorAll('.tb-link').forEach(l=>l.classList.toggle('active',l.dataset.s===cur));
+},{passive:true});
+
+// season
+const SEAS=[['Янв','lo','Низкий'],['Фев','lo','Низкий'],['Мар','md','Средний'],['Апр','hi','Высокий'],
+['Май','pk','Пик'],['Июн','pk','Пик'],['Июл','hi','Высокий'],['Авг','hi cur','Высокий'],
+['Сен','pk','Пик'],['Окт','hi','Высокий'],['Ноя','md','Средний'],['Дек','lo','Низкий']];
+function seas(){
+  const g=document.getElementById('seasGrid');if(!g)return;
+  g.innerHTML=SEAS.map(s=>`<div class="sc ${s[1]}"><span class="sc-m">${s[0]}</span><span class="sc-l">${s[2]}</span></div>`).join('');
 }
-function initCharts(){
-  // SEO growth
-  const sc=document.getElementById('seoChart');
-  if(sc&&!sc._c){
-    sc._c=new Chart(sc,{type:'bar',data:{
-      labels:['Март','Апрель','Май','Июнь'],
-      datasets:[
-        {label:'ТОП-3',data:[7,8,44,121],backgroundColor:'rgba(104,211,145,.5)',borderColor:'#68d391',borderWidth:1},
-        {label:'ТОП-10',data:[12,8,104,233],backgroundColor:'rgba(79,209,197,.3)',borderColor:'#4fd1c5',borderWidth:1},
-        {label:'ТОП-30',data:[48,71,237,410],backgroundColor:'rgba(79,209,197,.15)',borderColor:'rgba(79,209,197,.4)',borderWidth:1}
-      ]
-    },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8892a4',font:{size:10},boxWidth:10}}},scales:{x:{grid:{color:'rgba(30,37,53,.6)'},ticks:{color:'#8892a4',font:{size:10}}},y:{grid:{color:'rgba(30,37,53,.6)'},ticks:{color:'#8892a4',font:{size:10}}}}}});
-  }
-  // Direct spend + conv
-  const dc=document.getElementById('directChart');
-  if(dc&&!dc._c){
-    dc._c=new Chart(dc,{type:'bar',data:{
-      labels:['Март','Апрель','Май','Июнь'],
-      datasets:[
-        {label:'Расход ₽',data:[4883,8470,2456,null],backgroundColor:['rgba(79,209,197,.35)','rgba(252,129,129,.35)','rgba(246,173,85,.35)','rgba(74,85,104,.3)'],borderColor:['#4fd1c5','#fc8181','#f6ad55','#4a5568'],borderWidth:1,yAxisID:'y'},
-        {label:'Конверсии',data:[6,3,6,0],type:'line',borderColor:'#b794f4',backgroundColor:'rgba(183,148,244,.1)',yAxisID:'y2',tension:.3,pointRadius:6,pointBackgroundColor:'#b794f4'}
-      ]
-    },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8892a4',font:{size:10},boxWidth:10}}},scales:{x:{grid:{color:'rgba(30,37,53,.6)'},ticks:{color:'#8892a4',font:{size:10}}},y:{grid:{color:'rgba(30,37,53,.6)'},ticks:{color:'#8892a4',font:{size:10},callback:v=>v+'₽'},position:'left'},y2:{grid:{display:false},ticks:{color:'#b794f4',font:{size:10}},position:'right'}}}});
-  }
-  // CPC chart
-  const cp=document.getElementById('cpcChart');
-  if(cp&&!cp._c){
-    cp._c=new Chart(cp,{type:'line',data:{
-      labels:['Март','Апрель','Май','Июнь','Июль(пр.)','Авг(пр.)','Сен(пр.)'],
-      datasets:[
-        {label:'Факт CPC ₽',data:[48.78,54.77,62.97,null,null,null,null],borderColor:'#fc8181',backgroundColor:'rgba(252,129,129,.1)',pointBackgroundColor:'#fc8181',pointRadius:5,tension:.3},
-        {label:'Прогноз ₽',data:[48.78,54.77,62.97,65,50,45,85],borderColor:'#f6ad55',backgroundColor:'rgba(246,173,85,.06)',borderDash:[5,4],pointRadius:4,tension:.3},
-        {label:'Рынок ~47 ₽',data:[47,47,47,47,47,47,47],borderColor:'rgba(104,211,145,.4)',borderDash:[2,4],pointRadius:0}
-      ]
-    },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8892a4',font:{size:10},boxWidth:10}}},scales:{x:{grid:{color:'rgba(30,37,53,.6)'},ticks:{color:'#8892a4',font:{size:10}}},y:{grid:{color:'rgba(30,37,53,.6)'},ticks:{color:'#8892a4',font:{size:10},callback:v=>v+' ₽'},suggestedMin:30,suggestedMax:120}}}});
-  }
+
+const GRID='#e2e8f0',TICK='#64748b';
+const BASE={responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{labels:{color:TICK,font:{size:11,family:'Onest'},boxWidth:11,padding:12,usePointStyle:true}}},
+  scales:{x:{grid:{color:GRID},ticks:{color:TICK,font:{size:11,family:'Onest'}},border:{color:GRID}},
+          y:{grid:{color:GRID},ticks:{color:TICK,font:{size:11,family:'Onest'}},border:{color:GRID},beginAtZero:true}}};
+
+function boot(){
+  seas();
+  const d=document.getElementById('chDaily');
+  if(d&&!d._i){d._i=1;new Chart(d,{type:'bar',data:{
+    labels:['01–19.07','20.07','21–29.07','30.07','31.07'],
+    datasets:[
+      {label:'Клики',data:[47,3,21,208,57],backgroundColor:'rgba(13,148,136,.55)',borderColor:'#0d9488',borderWidth:1,borderRadius:4,yAxisID:'y'},
+      {label:'Конверсии',data:[0,1,1,5,1],type:'line',borderColor:'#7c3aed',backgroundColor:'#7c3aed',yAxisID:'y2',tension:.25,pointRadius:5,borderWidth:2}
+    ]},options:{...BASE,scales:{
+      x:BASE.scales.x,
+      y:{...BASE.scales.y,position:'left',title:{display:true,text:'Клики',color:TICK,font:{size:10}}},
+      y2:{position:'right',grid:{display:false},ticks:{color:'#7c3aed',font:{size:11,family:'Onest'},stepSize:1},beginAtZero:true,title:{display:true,text:'Конверсии',color:'#7c3aed',font:{size:10}}}}}});}
+
+  const s=document.getElementById('chSeo');
+  if(s&&!s._i){s._i=1;new Chart(s,{type:'line',data:{
+    labels:['Март','Апрель','Май','Июнь','Июль'],
+    datasets:[
+      {label:'ТОП-3',data:[7,8,44,121,190],borderColor:'#059669',backgroundColor:'rgba(5,150,105,.09)',fill:true,tension:.3,pointRadius:4,borderWidth:2.5},
+      {label:'ТОП-10',data:[12,8,104,233,397],borderColor:'#0d9488',backgroundColor:'rgba(13,148,136,.07)',fill:true,tension:.3,pointRadius:4,borderWidth:2.5},
+      {label:'ТОП-30',data:[48,71,237,410,608],borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.05)',fill:true,tension:.3,pointRadius:4,borderWidth:2.5}
+    ]},options:BASE});}
+
+  const dr=document.getElementById('chDir');
+  if(dr&&!dr._i){dr._i=1;new Chart(dr,{type:'bar',data:{
+    labels:['Март','Апрель','Май','Июнь','Июль'],
+    datasets:[
+      {label:'Расход, ₽',data:[4883,8470,2456,0,3473],backgroundColor:'rgba(13,148,136,.5)',borderColor:'#0d9488',borderWidth:1,borderRadius:4,yAxisID:'y'},
+      {label:'Конверсии',data:[6,3,6,0,8],type:'line',borderColor:'#7c3aed',backgroundColor:'#7c3aed',yAxisID:'y2',tension:.25,pointRadius:5,borderWidth:2}
+    ]},options:{...BASE,scales:{
+      x:BASE.scales.x,
+      y:{...BASE.scales.y,position:'left',ticks:{...BASE.scales.y.ticks,callback:v=>v.toLocaleString('ru')}},
+      y2:{position:'right',grid:{display:false},ticks:{color:'#7c3aed',font:{size:11,family:'Onest'},stepSize:2},beginAtZero:true}}}});}
+
+  const c=document.getElementById('chCpc');
+  if(c&&!c._i){c._i=1;new Chart(c,{type:'line',data:{
+    labels:['Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт'],
+    datasets:[
+      {label:'Факт CPC поиска',data:[48.78,54.77,62.97,null,null,null,null,null],borderColor:'#dc2626',backgroundColor:'#dc2626',pointRadius:5,tension:.25,borderWidth:2.5},
+      {label:'Прогноз',data:[48.78,54.77,62.97,58,52,50,78,92],borderColor:'#d97706',borderDash:[5,4],pointRadius:3,tension:.25,borderWidth:2},
+      {label:'Рынок ~47 ₽',data:[47,47,47,47,47,47,47,47],borderColor:'#94a3b8',borderDash:[2,4],pointRadius:0,borderWidth:1.5}
+    ]},options:{...BASE,scales:{x:BASE.scales.x,
+      y:{...BASE.scales.y,ticks:{...BASE.scales.y.ticks,callback:v=>v+' ₽'},suggestedMax:100}}}});}
 }
 </script>
 </body>
